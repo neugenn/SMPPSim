@@ -3,12 +3,15 @@ lock_src = lock
 timer_src = timer
 objects = lock.o mutex.o thread.o posixthread.o timer.o TimerController.o
 
+include SdkLibMakefile
+
+
 CXXFLAGS = $(DEBUG)
 VPATH=$(threads_src):$(threads_src)/posix:$(lock_src):$(lock_src)/posix:$(timer_src)
 
-all : libsmppsdk.so 
+all : $(SDKLIB)
 
-libsmppsdk.so: $(objects)
+$(SDKLIB): $(objects)
 	$(CXX) -shared -o $@ *.o
 
 lock.o: CXXFLAGS += -c -Wall -fpic -I$(lock_src) -I$(lock_src)/posix 

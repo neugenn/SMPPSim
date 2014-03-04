@@ -1,0 +1,11 @@
+LIBNAME = libsmppsdk
+LIBTYPE = .so
+
+sys = $(shell $(CXX) -dumpmachine)
+ifneq (, $(findstring cygwin, $(sys)))
+LIBTYPE = .dll
+endif
+
+SDKLIB = $(LIBNAME)$(LIBTYPE)
+SDK = smppsdk
+
