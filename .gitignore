@@ -1,0 +1,11 @@
+#ignore all object files
+*.o
+
+#ignore all precompiled headers
+*.gch
+
+#ignore all vi swap files
+*.swp
+
+#ignore all vi backup files
+*~
