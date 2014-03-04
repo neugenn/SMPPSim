@@ -6,9 +6,9 @@ objects = lock.o mutex.o thread.o posixthread.o timer.o TimerController.o
 CXXFLAGS = $(DEBUG)
 VPATH=$(threads_src):$(threads_src)/posix:$(lock_src):$(lock_src)/posix:$(timer_src)
 
-all : libsmppsdk.dll 
+all : libsmppsdk.so 
 
-libsmppsdk.dll: $(objects)
+libsmppsdk.so: $(objects)
 	$(CXX) -shared -o $@ *.o
 
 lock.o: CXXFLAGS += -c -Wall -fpic -I$(lock_src) -I$(lock_src)/posix 

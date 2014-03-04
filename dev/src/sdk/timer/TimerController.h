@@ -2,6 +2,7 @@
 #define TIMER_CONTROLLER_H_
 
 #include <vector>
+#include <time.h>
 #include "lock.h"
 #include "thread.h"
 

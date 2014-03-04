@@ -1,4 +1,4 @@
-CXXFLAGS = $(DEBUG) -c -wall -I../network -I../logging
+CXXFLAGS = $(DEBUG) -c -Wall -I../network -I../logging
 
 all: session.o pdu.o 
 

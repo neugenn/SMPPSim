@@ -11,7 +11,7 @@ all: $(test_app)
 	./$(test_app)
 
 $(test_app) : LFLAGS = -L$(sdk_dir) -l$(lib) -L/usr/local/lib -lcppunit 
-$(test_app): lib$(lib).dll TimerTests.o TimerControllerTests.o main.o 
+$(test_app): lib$(lib).so TimerTests.o TimerControllerTests.o main.o 
 	$(CXX) $(CXXFLAGS) *.o -o $(test_app) $(LFLAGS)
 
 TimerTests.o: CXXFLAGS += -c 
@@ -23,7 +23,7 @@ TimerControllerTests.o: TimerControllerTests.h TimerControllerTests.cpp
 main.o: CXXFLAGS += -c
 main.o: main.cpp
 
-libsmppsdk.dll:
+libsmppsdk.so:
 	cd $(sdk_dir) && $(MAKE)
 	cp $(sdk_dir)/$@ .
 
@@ -32,5 +32,5 @@ clean:
 	@-rm -rf lib*
 	@-rm -rf $(test_app)*
 
-.PHONY: clean libsmppsdk.dll
+.PHONY: clean libsmppsdk.so
 

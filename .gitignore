@@ -1,6 +1,9 @@
 #ignore all object files
 *.o
 
+#ignore all dynamic libs
+*.so
+
 #ignore all precompiled headers
 *.gch
 
