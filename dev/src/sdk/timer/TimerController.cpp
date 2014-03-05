@@ -1,71 +1,13 @@
 #include "TimerController.h"
+#include "timerimpl.h"
 #include "thread.h"
 #include <pthread.h>
 #include <iostream>
-#include <time.h>
 
 namespace SDK
 {
-	TimerImpl::TimerImpl(unsigned int sec) : id_(GenerateId()), delta_(sec), end_(time(NULL) + sec) 
-	{}
-
-	TimerImpl::~TimerImpl()
-	{
-		TimerController::GetInstance().Remove(this);
-	}
-
-	bool TimerImpl::Elapsed() const
-	{
-		return (time(NULL) >= end_);
-	}
-
-	bool TimerImpl::IsActive() const
-	{
-		TimerController& tc = TimerController::GetInstance();
-		return (tc.Manages(this->GetID()));
-	}
-
-	void TimerImpl::Register()
-	{
-		if (this->IsActive())
-		{
-			return;
-		}
-		TimerController::GetInstance().Add(this);
-	}
-
-	void TimerImpl::Unregister() 
-	{
-		if (!this->IsActive())
-		{
-			return;
-		}
-		TimerController::GetInstance().Remove(this);
-	}
-
-	void TimerImpl::Reset()
-	{
-		end_ = time(NULL) + delta_;
-	}
-
-	timer_id_t TimerImpl::GetID() const
-	{
-		return id_;
-	}
-
-	timer_id_t TimerImpl::ID = 0;
-	Lock TimerImpl::lock_;
-
-	timer_id_t TimerImpl::GenerateId()
-	{
-		LockGuard l(TimerImpl::lock_);
-		return ++ID;
-	}
-
-	bool operator==(const TimerImpl& lsh, const TimerImpl& rsh)
-	{
-		return (lsh.GetID() == rsh.GetID());
-	}
+	/*
+	*/
 
 	TimerController* TimerController::TheInstance = NULL;
 

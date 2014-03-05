@@ -17,18 +17,16 @@ namespace SDK
 		}
 	}
 
-	bool Timer::IsActive() const
+	bool Timer::IsRunning() const
 	{
-		return impl_->IsActive();
+		return false;
 	}
 
 	void Timer::Start()
 	{
-		impl_->Register();
 	}
 
 	void Timer::Stop()
 	{
-		impl_->Unregister();
 	}
 }

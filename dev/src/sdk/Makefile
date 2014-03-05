@@ -1,7 +1,7 @@
 threads_src = threads
 lock_src = lock
 timer_src = timer
-objects = lock.o mutex.o thread.o posixthread.o timer.o TimerController.o
+objects = lock.o mutex.o thread.o posixthread.o timer.o timerimpl.o TimerController.o
 
 include SdkLibMakefile
 
@@ -12,7 +12,7 @@ VPATH=$(threads_src):$(threads_src)/posix:$(lock_src):$(lock_src)/posix:$(timer_
 all : $(SDKLIB)
 
 $(SDKLIB): $(objects)
-	$(CXX) -shared -o $@ *.o
+	$(CXX) -shared -o $@ $(objects)
 
 lock.o: CXXFLAGS += -c -Wall -fpic -I$(lock_src) -I$(lock_src)/posix 
 lock.o: lock.cpp 
@@ -34,12 +34,16 @@ timer.o: CXXFLAGS += -c -Wall -fpic -I. -I$(timer_src) -I$(lock_src) -I$(threads
 timer.o: timer.cpp 
 	$(CXX) $(CXXFLAGS) $^
 
+timerimpl.o: CXXFLAGS += -c -Wall -fpic -I. -I$(timer_src) -I$(lock_src) 
+timerimpl.o: timerimpl.cpp 
+	$(CXX) $(CXXFLAGS) $^
+
 TimerController.o: CXXFLAGS += -c -Wall -fpic -I. -I$(timer_src) -I$(lock_src) -I$(threads_src)
 TimerController.o: TimerController.cpp 
 	$(CXX) $(CXXFLAGS) $^
 
 clean : 
-	@-rm -rf *.o
-	@-rm -rf lib*
+	@-rm -rf $(objects)
+	@-rm -rf $(SDKLIB)
 
 .PHONY: clean

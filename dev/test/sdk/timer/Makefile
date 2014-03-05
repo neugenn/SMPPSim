@@ -3,6 +3,7 @@ timer = $(sdk_dir)/timer
 lock = $(sdk_dir)/lock
 threads = $(sdk_dir)/threads
 test_app = test
+objects = TimerTests.o TimerControllerTests.o timerimpltests.o main.o
 
 include $(sdk_dir)/SdkLibMakefile
 
@@ -12,16 +13,15 @@ all: $(test_app)
 	./$(test_app)
 
 $(test_app) : LFLAGS = -L$(sdk_dir) -l$(SDK) -L/usr/local/lib -lcppunit 
-$(test_app): $(SDKLIB) TimerTests.o TimerControllerTests.o main.o 
-	$(CXX) $(CXXFLAGS) *.o -o $(test_app) $(LFLAGS)
+$(test_app): $(SDKLIB) $(objects)
+	$(CXX) $(CXXFLAGS) $(objects) -o $(test_app) $(LFLAGS)
 
-TimerTests.o: CXXFLAGS += -c 
-TimerTests.o: TimerTests.h TimerTests.cpp
+TimerTests.o: TimerTests.cpp TimerTests.h
 
-TimerControllerTests.o: CXXFLAGS += -c
-TimerControllerTests.o: TimerControllerTests.h TimerControllerTests.cpp
+TimerControllerTests.o: TimerControllerTests.cpp TimerControllerTests.h
 
-main.o: CXXFLAGS += -c
+timerimpltests.o: timerimpltests.cpp  timerimpltests.h
+
 main.o: main.cpp
 
 $(SDKLIB):
@@ -29,7 +29,7 @@ $(SDKLIB):
 	cp $(sdk_dir)/$@ .
 
 clean:
-	@-rm -rf *.o
+	@-rm -rf $(objects) 
 	@-rm -rf $(SDKLIB) 
 	@-rm -rf $(test_app)*
 

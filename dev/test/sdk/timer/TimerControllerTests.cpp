@@ -1,6 +1,8 @@
 #include "TimerControllerTests.h"
 #include "TimerController.h"
 
+//CPPUNIT_TEST_SUITE_REGISTRATION(TimerControllerTests);
+
 void TimerControllerTests::setUp()
 {
 	controller_ = &(SDK::TimerController::GetInstance());
@@ -46,5 +48,3 @@ void TimerControllerTests::testScopeRemoveTimer()
 	}
 	CPPUNIT_ASSERT(!controller_->Manages(id));
 }
-
-CPPUNIT_TEST_SUITE_REGISTRATION(TimerControllerTests);

@@ -11,8 +11,12 @@ namespace SDK
 			explicit Timer(unsigned int sec);
 			~Timer();
 
+		private:
+			Timer(const Timer&);
+			Timer& operator=(const Timer&);
+
 		public:
-			bool IsActive() const;
+			bool IsRunning() const;
 			void Start();
 			void Stop();
 
