@@ -3,6 +3,7 @@
 
 #ignore all dynamic libs
 *.so
+*.dll
 
 #ignore all precompiled headers
 *.gch
@@ -12,3 +13,6 @@
 
 #ignore all vi backup files
 *~
+
+#
+smscsim
