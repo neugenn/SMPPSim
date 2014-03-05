@@ -2,7 +2,14 @@
 
 namespace SDK
 {
-	TimerImpl::TimerImpl(unsigned int sec) : id_(GenerateId()), delta_(sec), singleShot_(false), end_(time(NULL) + sec)
+	TimerImpl::TimerImpl() :
+			active_(false),
+			singleShot_(false),
+			detached_(false),
+			defunct_(false),
+			end_(0),
+			delta_(0),
+			id_(GenerateId())
 	{}
 
 	TimerImpl::~TimerImpl()
@@ -27,6 +34,47 @@ namespace SDK
 	void TimerImpl::EnableSingleShot()
 	{
 		singleShot_ = true;
+	}
+
+	bool TimerImpl::IsDetached() const
+	{
+		return detached_;
+	}
+
+	void TimerImpl::SetDetached()
+	{
+		detached_ = true;
+	}
+
+	bool TimerImpl::IsDefunct() const
+	{
+		return defunct_;
+	}
+
+	void TimerImpl::SetDefunct()
+	{
+		defunct_ = true;
+	}
+
+	bool TimerImpl::IsActive() const
+	{
+		return active_;
+	}
+
+	void TimerImpl::SetActive()
+	{
+		active_ = true;
+	}
+
+	void TimerImpl::SetInactive()
+	{
+		active_ = false;
+	}
+
+	void TimerImpl::SetTimeout(unsigned int sec)
+	{
+		delta_ = sec;
+		this->Reset();
 	}
 
 	timer_id_t TimerImpl::GetID() const

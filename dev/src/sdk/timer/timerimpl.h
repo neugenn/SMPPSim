@@ -11,15 +11,28 @@ namespace SDK
 	class TimerImpl
 	{
 		public:
-			explicit TimerImpl(unsigned int sec = 0);
+			explicit TimerImpl();
 			~TimerImpl();
 
 			timer_id_t GetID() const;
 
 			bool IsSingleShot() const;
 			void EnableSingleShot();
+			bool IsDetached() const;
+			void SetDetached();
+			bool IsDefunct() const;
+			void SetDefunct();
+			bool IsActive() const;
+			void SetActive();
+			void SetInactive();
+			void SetTimeout(unsigned int sec);
+
 			bool Elapsed() const;
 			void Reset();
+
+		private:
+			TimerImpl(const TimerImpl&);
+			TimerImpl& operator=(const TimerImpl&);
 
 		private:
 			static timer_id_t GenerateId();
@@ -27,10 +40,13 @@ namespace SDK
 			static Lock lock_;
 
 		private:
-			const timer_id_t id_;
-			const unsigned int delta_;
+			bool active_;
 			bool singleShot_;
+			bool detached_;
+			bool defunct_;
 			time_t end_;
+			unsigned int delta_;
+			const timer_id_t id_;
 	};
 
 	bool operator==(const TimerImpl& lsh, const TimerImpl& rsh);

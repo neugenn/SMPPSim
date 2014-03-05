@@ -22,4 +22,4 @@ smscsim.exe
 SMPPSim*
 
 #ignore test binaries
-test*
+#test*

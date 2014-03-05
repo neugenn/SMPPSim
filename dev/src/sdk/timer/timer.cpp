@@ -4,7 +4,7 @@
 
 namespace SDK
 {
-	Timer::Timer(unsigned int sec) : impl_(new SDK::TimerImpl(sec))
+	Timer::Timer(unsigned int sec) : impl_(new SDK::TimerImpl())
 	{
 	}
 
