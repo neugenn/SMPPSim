@@ -4,13 +4,17 @@
 
 namespace SDK
 {
-	Timer::Timer(unsigned int sec) : impl_(new SDK::TimerImpl())
+	Timer::Timer() : impl_(new SDK::TimerImpl())
 	{
 	}
 
 	Timer::~Timer()
 	{
-		if (NULL != impl_)
+		if (impl_->IsDetached())
+		{
+			impl_->SetDefunct();
+		}
+		else
 		{
 			delete impl_;
 			impl_ = NULL;
@@ -19,14 +23,28 @@ namespace SDK
 
 	bool Timer::IsRunning() const
 	{
-		return false;
+		return impl_->IsActive();
 	}
 
-	void Timer::Start()
+	void Timer::Start(unsigned int sec /* = 10 */)
 	{
+		if (this->IsRunning())
+		{
+			return;
+		}
+
+		if (!impl_->IsDetached())
+		{
+			impl_->SetDetached();
+		}
+
+		impl_->SetActive();
+		impl_->SetTimeout(sec);
+		TimerController::GetInstance().Add(impl_);
 	}
 
 	void Timer::Stop()
 	{
+		impl_->SetInactive();
 	}
 }

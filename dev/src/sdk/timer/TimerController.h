@@ -28,8 +28,10 @@ namespace SDK
 		private:
 			virtual bool Run();
 
-		private:
+		protected:
 			static TimerController* TheInstance;
+
+		private:
 			std::vector<TimerImpl*> timers_;
 			Lock lock_;
 	};

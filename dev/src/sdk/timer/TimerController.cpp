@@ -3,6 +3,7 @@
 #include "thread.h"
 #include <pthread.h>
 #include <iostream>
+#include <cassert>
 
 namespace SDK
 {
@@ -15,7 +16,15 @@ namespace SDK
 	{}
 
 	TimerController::~TimerController()
-	{}
+	{
+		for (int i = 0; i < timers_.size(); ++i)
+		{
+			 const TimerImpl* pi = timers_[i];
+			 assert(pi->IsDetached());
+
+			 delete pi;
+		}
+	}
 
 	bool TimerController::Add(TimerImpl* t)
 	{
@@ -113,12 +122,8 @@ namespace SDK
 	{
 		if (NULL == TimerController::TheInstance)
 		{
-		#ifdef UNIT_TEST
-		TheInstance = new TestTimerController();
-		#else
-		TheInstance = new TimerController();
-		#endif
-		TheInstance->Start();
+			TheInstance = new TimerController();
+			TheInstance->Start();
 		}
 
 		return *TheInstance;

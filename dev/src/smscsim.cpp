@@ -25,8 +25,8 @@ int main(int argc, char* argv[])
 	FILE_LOG(logDEBUG) << in;
 	*/
 
-	SDK::Timer t(10);
-	t.Start();
+	SDK::Timer t;
+	t.Start(10);
 
 	for (;;)
 	{

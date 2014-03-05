@@ -8,7 +8,7 @@ namespace SDK
 	class Timer
 	{
 		public:
-			explicit Timer(unsigned int sec);
+			Timer();
 			~Timer();
 
 		private:
@@ -17,10 +17,10 @@ namespace SDK
 
 		public:
 			bool IsRunning() const;
-			void Start();
+			void Start(unsigned int sec = 10);
 			void Stop();
 
-		private:
+		protected:
 			TimerImpl* impl_;
 	};
 }

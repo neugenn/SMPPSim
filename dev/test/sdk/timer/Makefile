@@ -3,7 +3,7 @@ timer = $(sdk_dir)/timer
 lock = $(sdk_dir)/lock
 threads = $(sdk_dir)/threads
 test_app = test
-objects = TimerTests.o TimerControllerTests.o timerimpltests.o main.o
+objects = TimerTests.o TimerControllerTests.o timerimpltests.o mocktimer.o mocktimercontroller.o main.o
 
 include $(sdk_dir)/SdkLibMakefile
 
@@ -21,6 +21,10 @@ TimerTests.o: TimerTests.cpp TimerTests.h
 TimerControllerTests.o: TimerControllerTests.cpp TimerControllerTests.h
 
 timerimpltests.o: timerimpltests.cpp  timerimpltests.h
+
+mocktimer.o: mocktimer.cpp mocktimer.h
+
+mocktimercontroller.o: mocktimercontroller.cpp mocktimercontroller.h
 
 main.o: main.cpp
 

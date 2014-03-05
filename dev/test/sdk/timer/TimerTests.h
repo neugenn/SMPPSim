@@ -2,33 +2,42 @@
 
 namespace SDK
 {
-	class Timer;
+	class TestTimer;
 }
 
 class TimerTests : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(TimerTests);
 	CPPUNIT_TEST(testCreation);
-	CPPUNIT_TEST(testUnregisteredTimer);
-	CPPUNIT_TEST(testRegisteredTimer);
-	CPPUNIT_TEST(testMultipleRegisteredTimer);
-	CPPUNIT_TEST(testDeregisteredTimer);
-	CPPUNIT_TEST(testMultipleDeregisteredTimer);
+	CPPUNIT_TEST(testRunningStateForStartedTimer);
+	CPPUNIT_TEST(testDefunctStateForStartedTimer);
+	CPPUNIT_TEST(testDetachedStateForStartedTimer);
+	CPPUNIT_TEST(testRunningStateForStoppedTimer);
+	CPPUNIT_TEST(testDefunctStateForStoppedTimer);
+	CPPUNIT_TEST(testDetachedStateForStartedScopedTimer);
+	CPPUNIT_TEST(testImplForStartedScopedTimer);
+	CPPUNIT_TEST(testDefunctStateForStartedScopedTimer);
+	CPPUNIT_TEST(testDefaultDefunctStateForTimer);
+	CPPUNIT_TEST(testDefaultDetachedStateForTimer);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
 		void testCreation();
-		void testUnregisteredTimer();
-		void testRegisteredTimer();
-		void testMultipleRegisteredTimer();
-		void testDeregisteredTimer();
-		void testMultipleDeregisteredTimer();
+		void testRunningStateForStartedTimer();
+		void testDefunctStateForStartedTimer();
+		void testDetachedStateForStartedTimer();
+		void testRunningStateForStoppedTimer();
+		void testDefunctStateForStoppedTimer();
+		void testDetachedStateForStoppedTimer();
+		void testDetachedStateForStartedScopedTimer();
+		void testDefunctStateForStartedScopedTimer();
+		void testDefaultDefunctStateForTimer();
+		void testDefaultDetachedStateForTimer();
+		void testImplForStartedScopedTimer();
 
 		void setUp();
 		void tearDown();
 
 	private:
-		SDK::Timer* timer_;
+		SDK::TestTimer* timer_;
 };
-
-
