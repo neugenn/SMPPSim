@@ -2,6 +2,8 @@
 #define TIMERIMPL_H
 
 #include "lock.h"
+#include "timercallback.h"
+#include <cstdlib>
 #include <time.h>
 
 namespace SDK
@@ -11,7 +13,7 @@ namespace SDK
 	class TimerImpl
 	{
 		public:
-			explicit TimerImpl();
+			explicit TimerImpl(TimerCallback* cbk = NULL);
 			~TimerImpl();
 
 			timer_id_t GetID() const;
@@ -26,8 +28,9 @@ namespace SDK
 			void SetActive();
 			void SetInactive();
 			void SetTimeout(unsigned int sec);
+			TimerCallback* GetCallback();
 
-			bool Elapsed() const;
+			time_t SecUntilElapse() const;
 			void Reset();
 
 		private:
@@ -37,7 +40,7 @@ namespace SDK
 		private:
 			static timer_id_t GenerateId();
 			static timer_id_t ID;
-			static Lock lock_;
+			static Lock idLock_;
 
 		private:
 			bool active_;
@@ -47,9 +50,12 @@ namespace SDK
 			time_t end_;
 			unsigned int delta_;
 			const timer_id_t id_;
+			TimerCallback* cbk_;
+			Lock propLock_;
 	};
 
 	bool operator==(const TimerImpl& lsh, const TimerImpl& rsh);
+	bool operator>(const TimerImpl& lsh, const TimerImpl& rsh);
 }
 
 #endif // TIMERIMPL_H

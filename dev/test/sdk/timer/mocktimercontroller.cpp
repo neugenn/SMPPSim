@@ -8,12 +8,10 @@ namespace SDK
 		return true;
 	}
 
-	/*
 	const TimerController::TQueue& TestTimerController::TimerQueue()
 	{
 		return TimerController::timers_;
 	}
-	*/
 
 	void TestTimerController::SetTestInstance()
 	{
@@ -24,16 +22,4 @@ namespace SDK
 
 		TimerController::TheInstance = new TestTimerController;
 	}
-
-	/*
-	void TestTimerController::DeleteTimerImpl(TimerImpl*& p)
-	{
-		TimerController::DeleteTimerImpl(p);
-	}
-
-	bool TestTimerController::Add(TimerImpl* t)
-	{
-		return TimerController::LockFreeAdd(t);
-	}
-	*/
 }

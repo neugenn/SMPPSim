@@ -37,5 +37,10 @@ namespace SDK
 			int r = pthread_mutex_unlock(&m_);
 			return (0 == r);
 		}
+
+		pthread_mutex_t& Mutex::Impl()
+		{
+			return m_;
+		}
 	}
 }

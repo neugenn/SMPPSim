@@ -1,18 +1,29 @@
 #ifndef TIMER_CONTROLLER_H_
 #define TIMER_CONTROLLER_H_
 
-#include <vector>
+#include <queue>
+#include <functional>
 #include "lock.h"
 #include "thread.h"
+#include "condvar.h"
 #include "timerimpl.h"
 
 namespace SDK
 {
-	class TimerImpl;
+
+	template<typename Type, typename Compare = std::greater<Type> >
+	struct pless : public std::binary_function<Type*, Type*, bool>
+	{
+		bool operator()(const Type *x, const Type *y) const
+		{
+			return Compare()(*x, *y);
+		}
+	};
 
 	class TimerController : public Thread
 	{
 		public:
+			typedef std::priority_queue<TimerImpl*, std::vector<TimerImpl*>, pless<TimerImpl> > TQueue;
 			static TimerController& GetInstance();
 
 		protected:
@@ -20,20 +31,18 @@ namespace SDK
 
 		public:
 			virtual ~TimerController();
-
-			bool Add(TimerImpl* t);
-			void Remove(const TimerImpl* t);
-			bool Manages(timer_id_t id);
+			void Add(TimerImpl* t);
 
 		private:
 			virtual bool Run();
 
 		protected:
 			static TimerController* TheInstance;
+			TQueue timers_;
 
 		private:
-			std::vector<TimerImpl*> timers_;
-			Lock lock_;
+			Lock queueLock_;
+			CondVar queueReady_;
 	};
 }
 

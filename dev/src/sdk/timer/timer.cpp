@@ -4,7 +4,7 @@
 
 namespace SDK
 {
-	Timer::Timer() : impl_(new SDK::TimerImpl())
+	Timer::Timer(TimerCallback* cbk /* = NULL */) : impl_(new SDK::TimerImpl(cbk))
 	{
 	}
 
@@ -26,7 +26,7 @@ namespace SDK
 		return impl_->IsActive();
 	}
 
-	void Timer::Start(unsigned int sec /* = 10 */)
+	void Timer::Start(unsigned int sec)
 	{
 		if (this->IsRunning())
 		{

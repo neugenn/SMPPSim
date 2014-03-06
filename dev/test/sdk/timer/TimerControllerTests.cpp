@@ -1,15 +1,21 @@
 #include "TimerControllerTests.h"
-#include "TimerController.h"
+#include "mocktimer.h"
 
-//CPPUNIT_TEST_SUITE_REGISTRATION(TimerControllerTests);
+CPPUNIT_TEST_SUITE_REGISTRATION(TimerControllerTests);
+
+using SDK::TestTimerController;
+using SDK::TestTimer;
 
 void TimerControllerTests::setUp()
 {
-	controller_ = &(SDK::TimerController::GetInstance());
+	TestTimerController::SetTestInstance();
+	controller_ = dynamic_cast<TestTimerController*>(&SDK::TimerController::GetInstance());
+	timers_ = &(controller_->TimerQueue());
 }
 
 void TimerControllerTests::tearDown()
 {
+	timers_ = NULL;
 	controller_ = NULL;
 }
 
@@ -21,30 +27,52 @@ void TimerControllerTests::testCreation()
 
 void TimerControllerTests::testAddTimer()
 {
-	SDK::TimerImpl impl;
-	CPPUNIT_ASSERT(controller_->Add(&impl));
+	TestTimer t;
+	t.Start(5);
+	CPPUNIT_ASSERT(1 == timers_->size());
 }
 
-void TimerControllerTests::testAddNullTimer()
+void TimerControllerTests::testAddThreeTimers()
 {
-	CPPUNIT_ASSERT(!controller_->Add(NULL));
+	TestTimer t1;
+	TestTimer t2;
+	TestTimer t3;
+
+	t1.Start(4);
+	t2.Start(5);
+	t3.Start(6);
+
+	CPPUNIT_ASSERT(3 == timers_->size());
 }
 
-void TimerControllerTests::testRemoveTimer()
+void TimerControllerTests::testPriorityWithThreeTimers()
 {
-	SDK::TimerImpl impl;
-	controller_->Add(&impl);
-	controller_->Remove(&impl);
-	CPPUNIT_ASSERT(!controller_->Manages(impl.GetID()));
+	TestTimer t1;
+	TestTimer t2;
+	TestTimer t3;
+
+	t1.Start(9);
+	t2.Start(8);
+	t3.Start(6);
+
+	const SDK::TimerImpl* p = timers_->top();
+	CPPUNIT_ASSERT(p->GetID() == t3.Impl()->GetID());
 }
 
-void TimerControllerTests::testScopeRemoveTimer()
+void TimerControllerTests::testPriorityForRestartedTimer()
 {
-	SDK::timer_id_t id = 0;
-	{
-		SDK::TimerImpl impl;
-		controller_->Add(&impl);
-		id = impl.GetID();
-	}
-	CPPUNIT_ASSERT(!controller_->Manages(id));
+	TestTimer t1;
+	TestTimer t2;
+
+	t1.Start(9);
+	t2.Start(8);
+
+	const SDK::TimerImpl* p = timers_->top();
+	CPPUNIT_ASSERT(p->GetID() == t2.Impl()->GetID());
+
+	t1.Stop();
+	t1.Start(7);
+
+	p = timers_->top();
+	CPPUNIT_ASSERT(p->GetID() == t1.Impl()->GetID());
 }

@@ -18,6 +18,7 @@ namespace SDK
 				virtual bool Lock();
 				virtual bool TryLock();
 				virtual bool Unlock();
+				pthread_mutex_t& Impl();
 
 			private:
 				pthread_mutexattr_t t_;

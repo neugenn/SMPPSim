@@ -7,125 +7,111 @@
 
 namespace SDK
 {
-	/*
-	*/
-
 	TimerController* TimerController::TheInstance = NULL;
 
-	TimerController::TimerController() : timers_(), lock_()
+	TimerController& TimerController::GetInstance()
+	{
+		if (NULL == TimerController::TheInstance)
+		{
+			TimerController::TheInstance = new TimerController;
+			TimerController::TheInstance->Start();
+		}
+
+		return *TimerController::TheInstance;
+	}
+
+	TimerController::TimerController() :
+			timers_(),
+			queueLock_(),
+			queueReady_(queueLock_)
 	{}
 
 	TimerController::~TimerController()
 	{
-		for (int i = 0; i < timers_.size(); ++i)
+		this->Stop();
+
+		while (!timers_.empty())
 		{
-			 const TimerImpl* pi = timers_[i];
+			 const TimerImpl* pi = timers_.top();
+			 timers_.pop();
 			 assert(pi->IsDetached());
 
 			 delete pi;
 		}
 	}
 
-	bool TimerController::Add(TimerImpl* t)
+	void TimerController::Add(TimerImpl* t)
 	{
-		if (NULL == t)
-		{
-			return false;
-		}
+		assert(NULL != t);
+		assert(t->IsActive());
 
-		if (this->Manages(t->GetID()))
-		{
-			return false;
-		}
-
-		//[TODO]: synchronize
-		LockGuard l(lock_);
-		timers_.push_back(t);
-		return true;
-	}
-
-	void TimerController::Remove(const TimerImpl* t)
-	{
-		if (NULL == t)
-		{
-			return;
-		}
-
-		//[TODO]: synchronize
-		LockGuard l(lock_);
-		std::vector<TimerImpl*>::iterator it = timers_.begin();
-		std::vector<TimerImpl*>::iterator itEnd = timers_.end();
-		for (; it != itEnd; ++it)
-		{
-			const TimerImpl* pi = *it;
-			if (pi->GetID() == t->GetID())
-			{
-				timers_.erase(it);
-				break;
-			}
-		}
-	}
-
-	bool TimerController::Manages(timer_id_t id)
-	{
-		bool r = false;
-		//[TODO]: synchronize
-		LockGuard l(lock_);
-		for (size_t i = 0; i < timers_.size(); ++i)
-		{
-			if (timers_[i]->GetID() == id)
-			{
-				r  = true;
-				break;
-			}
-		}
-		return r;
+		LockGuard l(queueLock_);
+		timers_.push(t);
+		queueReady_.Signal();
 	}
 
 	bool TimerController::Run()
 	{
 		for(;;)
 		{
-			LockGuard l(lock_);
-			std::vector<TimerImpl*>::iterator it = timers_.begin();
-			std::vector<TimerImpl*>::iterator itEnd = timers_.end();
+			queueLock_.Acquire();
 
-			for (; it != itEnd; ++it)
+			while (timers_.empty())
 			{
-				TimerImpl* pi = *it;
-				if (pi->Elapsed())
+				queueReady_.Wait();
+			}
+
+			TimerImpl* p = timers_.top();
+			timers_.pop();
+
+			do
+			{
+				if (p->IsDefunct())
 				{
-					std::cout << "Timer" << " " << pi->GetID() << " elapsed !" << std::endl;
-					pi->Reset();
+					delete p;
+					p = NULL;
+					break;
+				}
+
+				if (!p->IsActive())
+				{
+					break;
+				}
+
+				bool tmo = false;
+				queueReady_.Wait(p->SecUntilElapse(), &tmo);
+
+				if (!tmo)
+				{
+					timers_.push(p);
+					break;
+				}
+
+				if (p->IsActive())
+				{
+					TimerCallback* pcbk = p->GetCallback();
+					if (NULL != pcbk)
+					{
+						pcbk->Elapsed();
+						pcbk = NULL;
+					}
+
+					if (!p->IsSingleShot())
+					{
+						p->Reset();
+						timers_.push(p);
+					}
+					else
+					{
+						p->SetInactive();
+					}
 				}
 			}
+			while (false);
+
+			queueLock_.Release();
 		}
 
 		return true;
-	}
-
-	class TestTimerController : public TimerController
-	{
-		public:
-			TestTimerController() : TimerController() {}
-			~TestTimerController() {}
-
-		private:
-			virtual bool Run() 
-			{
-				return true;
-			}
-			
-	};
-
-	TimerController& TimerController::GetInstance()
-	{
-		if (NULL == TimerController::TheInstance)
-		{
-			TheInstance = new TimerController();
-			TheInstance->Start();
-		}
-
-		return *TheInstance;
 	}
 }

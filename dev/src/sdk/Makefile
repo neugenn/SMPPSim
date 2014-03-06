@@ -1,7 +1,7 @@
 threads_src = threads
 lock_src = lock
 timer_src = timer
-objects = lock.o mutex.o thread.o posixthread.o timer.o timerimpl.o TimerController.o
+objects = lock.o mutex.o thread.o posixthread.o condvar.o condition.o timer.o timerimpl.o TimerController.o
 
 include SdkLibMakefile
 
@@ -28,6 +28,14 @@ thread.o: thread.cpp
 
 posixthread.o: CXXFLAGS += -c -Wall -fpic -I$(threads_src) -I$(threads_src)/posix 
 posixthread.o: posixthread.cpp 
+	$(CXX) $(CXXFLAGS) $^
+
+condvar.o: CXXFLAGS += -c -Wall -fpic -I$(lock_src) -I$(lock_src)/posix
+condvar.o: condvar.cpp
+	$(CXX) $(CXXFLAGS) $^
+
+condition.o: CXXFLAGS += -c -Wall -fpic -I$(lock_src) -I$(lock_src)/posix
+condition.o: condition.cpp
 	$(CXX) $(CXXFLAGS) $^
 
 timer.o: CXXFLAGS += -c -Wall -fpic -I. -I$(timer_src) -I$(lock_src) -I$(threads_src)

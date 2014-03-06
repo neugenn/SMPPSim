@@ -1,14 +1,18 @@
 #ifndef TIMER_H_
 #define TIMER_H_
 
+#include <cstdlib>
+#include "timercallback.h"
+
 namespace SDK
 {
 	class TimerImpl;
+	class TimerCallback;
 
 	class Timer
 	{
 		public:
-			Timer();
+			Timer(TimerCallback* cbk = NULL);
 			~Timer();
 
 		private:
@@ -17,7 +21,7 @@ namespace SDK
 
 		public:
 			bool IsRunning() const;
-			void Start(unsigned int sec = 10);
+			void Start(unsigned int sec);
 			void Stop();
 
 		protected:

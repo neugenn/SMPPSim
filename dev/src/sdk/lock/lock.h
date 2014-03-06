@@ -17,6 +17,7 @@ namespace SDK
 
 		private:
 			ILock* impl_;
+			friend class CondVar;
 	};
 
 	class LockGuard
@@ -24,6 +25,10 @@ namespace SDK
 		public:
 			LockGuard(Lock& lr);
 			~LockGuard();
+
+		private:
+			LockGuard(const LockGuard&);
+			LockGuard& operator=(const LockGuard&);
 
 		private:
 			Lock& lock_;

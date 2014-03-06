@@ -11,15 +11,13 @@ namespace SDK
 			TestTimerController() : TimerController() {}
 		public:
 			~TestTimerController() {}
-//			bool Add(TimerImpl* t);
 
 		private:
 			virtual bool Run();
 
 		public:
 			static void SetTestInstance();
-//			static void DeleteTimerImpl(TimerImpl*& p);
-//			const TimerController::TQueue& TimerQueue();
+			const TimerController::TQueue& TimerQueue();
 	};
 }
 
