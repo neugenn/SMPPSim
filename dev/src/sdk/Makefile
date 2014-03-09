@@ -12,7 +12,7 @@ VPATH=$(threads_src):$(threads_src)/posix:$(lock_src):$(lock_src)/posix:$(timer_
 all : $(SDKLIB)
 
 $(SDKLIB): $(objects)
-	$(CXX) -shared -o $@ $(objects)
+	$(CXX) $(DEBUG) -shared -o $@ $(objects)
 
 lock.o: CXXFLAGS += -c -Wall -fpic -I$(lock_src) -I$(lock_src)/posix 
 lock.o: lock.cpp 
