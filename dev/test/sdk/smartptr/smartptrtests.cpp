@@ -1,5 +1,6 @@
 #include "smartptrtests.h"
 #include "sharedptr.h"
+#include <vector>
 
 using SDK::SharedPtr;
 
@@ -7,75 +8,72 @@ CPPUNIT_TEST_SUITE_REGISTRATION(SharedPtrTests);
 
 void SharedPtrTests::testCreation()
 {
-    SharedPtr<int> p(new int(1));
-    CPPUNIT_ASSERT(1 == p.Counter());
+	SharedPtr<int> p(new int(1));
+	CPPUNIT_ASSERT(1 == p.Counter());
 }
 
 void SharedPtrTests::testCopyConstruction()
 {
-    SharedPtr<int> p(new int(1));
-    SharedPtr<int> p1(p);
-
-    CPPUNIT_ASSERT(2 == p1.Counter());
-}
-
-void SharedPtrTests::testCopyConstructionWithSameObject()
-{
-    SharedPtr<int> p(new int(1));
-    SharedPtr<int> p1(p);
-    SharedPtr<int> p2(p);
-    SharedPtr<int> p3(p);
-
-    CPPUNIT_ASSERT(4 == p2.Counter());
+	SharedPtr<int> p1(new int(1));
+	SharedPtr<int> p2(p1);
+	CPPUNIT_ASSERT(2 == p1.Counter());
 }
 
 void SharedPtrTests::testScopedPtr()
 {
-    SharedPtr<int> p1(new int(1));
-    {
-    SharedPtr<int> p2(p1);
-    }
-
-    CPPUNIT_ASSERT(1 == p1.Counter());
+	SharedPtr<int> p1(new int(1));
+	{
+		SharedPtr<int> p2(p1);
+	}
+	CPPUNIT_ASSERT(1 == p1.Counter());
 }
 
 void SharedPtrTests::testSingleNodeSuccess()
 {
-    SharedPtr<int> p1(new int(1));
-    CPPUNIT_ASSERT(p1.IsSingleNode());
+	SharedPtr<int> p(new int(1));
+	CPPUNIT_ASSERT(p.IsSingleNode());
 }
 
 void SharedPtrTests::testSingleNodeFail()
 {
-    SharedPtr<int> p1(new int(1));
-    SharedPtr<int> p2(p1);
-    CPPUNIT_ASSERT(!p1.IsSingleNode());
+	SharedPtr<int> p1(new int(1));
+	SharedPtr<int> p2(p1);
+	CPPUNIT_ASSERT(!p1.IsSingleNode());
 }
 
-void SharedPtrTests::testFirstNodeSuccess()
+void SharedPtrTests::testVectorBehavior()
 {
-    SharedPtr<int> p1(new int(1));
-    SharedPtr<int> p2(p1);
-    CPPUNIT_ASSERT(p1.IsFirstNode());
+	SharedPtr<int> p(new int(1));
+
+	std::vector<SharedPtr<int> > v;
+	const size_t count = 10;
+	for (size_t i = 0; i < count; ++i)
+	{
+		v.push_back(p);
+	}
+
+	CPPUNIT_ASSERT(count + 1 == p.Counter());
 }
 
-void SharedPtrTests::testFirstNodeFail()
+void SharedPtrTests::testAssignment()
 {
-    SharedPtr<int> p1(new int(1));
-    SharedPtr<int> p2(p1);
-    CPPUNIT_ASSERT(!p2.IsFirstNode());
+	SharedPtr<int> p1(new int(1));
+	SharedPtr<int> p2;
+
+	p2 = p1;
+	CPPUNIT_ASSERT(2 == p1.Counter());
 }
 
-void SharedPtrTests::testLastNodeSuccess()
+void SharedPtrTests::testSelfAssignment()
 {
-    SharedPtr<int> p1(new int(1));
-    SharedPtr<int> p2(p1);
-    CPPUNIT_ASSERT(p2.IsLastNode());
+	SharedPtr<int> p(new int(1));
+	p = p;
+	CPPUNIT_ASSERT(1 == p.Counter());
 }
 
-void SharedPtrTests::testLastNodeFail()
+void SharedPtrTests::testDereferencing()
 {
-    SharedPtr<int> p1(new int(1));
-    SharedPtr<int> p2(p1);
-    CPPUNIT_ASSERT(!p1.IsLastNode());
+	SharedPtr<int> p(new int(1));
+	int i = *p;
+	CPPUNIT_ASSERT_EQUAL(1, i);
 }

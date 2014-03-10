@@ -1,6 +1,8 @@
 #ifndef LOCK_H_
 #define LOCK_H_
 
+#include <memory>
+
 namespace SDK
 {
 	class ILock;
@@ -11,12 +13,16 @@ namespace SDK
 			Lock();
 			~Lock();
 
+		private:
+			Lock(const Lock&);
+			Lock& operator=(const Lock&);
+
 		public:
 			bool Acquire();
 			bool Release();
 
 		private:
-			ILock* impl_;
+			std::auto_ptr<ILock> impl_;
 			friend class CondVar;
 	};
 

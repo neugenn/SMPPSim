@@ -8,11 +8,7 @@ namespace SDK
 
 	Lock::~Lock() 
 	{
-		if (NULL != impl_)
-		{
-			this->Release();
-			delete impl_;
-		}
+		this->Release();
 	}
 
 	bool Lock::Acquire()
