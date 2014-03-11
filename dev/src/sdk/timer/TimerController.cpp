@@ -29,20 +29,10 @@ namespace SDK
 	TimerController::~TimerController()
 	{
 		this->Stop();
-
-		while (!timers_.empty())
-		{
-			 const TimerImpl* pi = timers_.top();
-			 timers_.pop();
-			 assert(pi->IsDetached());
-
-			 delete pi;
-		}
 	}
 
-	void TimerController::Add(TimerImpl* t)
+	void TimerController::Add(SharedPtr<TimerImpl>& t)
 	{
-		assert(NULL != t);
 		assert(t->IsActive());
 
 		LockGuard l(queueLock_);
@@ -61,16 +51,13 @@ namespace SDK
 				queueReady_.Wait();
 			}
 
-			TimerImpl* p = timers_.top();
+			SharedPtr<TimerImpl> p = timers_.top();
 			timers_.pop();
 
 			do
 			{
 				if (p->IsDefunct())
 				{
-					delete p;
-					p = NULL;
-					break;
 				}
 
 				if (!p->IsActive())

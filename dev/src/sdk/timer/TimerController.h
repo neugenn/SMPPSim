@@ -7,14 +7,15 @@
 #include "thread.h"
 #include "condvar.h"
 #include "timerimpl.h"
+#include "sharedptr.h"
 
 namespace SDK
 {
 
 	template<typename Type, typename Compare = std::greater<Type> >
-	struct pless : public std::binary_function<Type*, Type*, bool>
+	struct pless : public std::binary_function<Type, Type, bool>
 	{
-		bool operator()(const Type *x, const Type *y) const
+		bool operator()(Type x, Type y) const
 		{
 			return Compare()(*x, *y);
 		}
@@ -23,7 +24,7 @@ namespace SDK
 	class TimerController : public Thread
 	{
 		public:
-			typedef std::priority_queue<TimerImpl*, std::vector<TimerImpl*>, pless<TimerImpl> > TQueue;
+			typedef std::priority_queue<SharedPtr<TimerImpl>, std::vector<SharedPtr<TimerImpl> >, pless<SharedPtr<TimerImpl> > > TQueue;
 			static TimerController& GetInstance();
 
 		protected:
@@ -31,7 +32,7 @@ namespace SDK
 
 		public:
 			virtual ~TimerController();
-			void Add(TimerImpl* t);
+			void Add(SharedPtr<TimerImpl>& t);
 
 		private:
 			virtual bool Run();

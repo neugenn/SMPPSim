@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include "timercallback.h"
+#include "sharedptr.h"
 
 namespace SDK
 {
@@ -25,7 +26,7 @@ namespace SDK
 			void Stop();
 
 		protected:
-			TimerImpl* impl_;
+			SharedPtr<TimerImpl> impl_;
 	};
 }
 

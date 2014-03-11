@@ -14,11 +14,6 @@ namespace SDK
 		{
 			impl_->SetDefunct();
 		}
-		else
-		{
-			delete impl_;
-			impl_ = NULL;
-		}
 	}
 
 	bool Timer::IsRunning() const
