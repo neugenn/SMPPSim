@@ -1,12 +1,11 @@
 #include "timerimpl.h"
+#include <iostream>
 
 namespace SDK
 {
 	TimerImpl::TimerImpl(TimerCallback* cbk /* = NULL */) :
 			active_(false),
 			singleShot_(false),
-			detached_(false),
-			defunct_(false),
 			end_(0),
 			delta_(0),
 			id_(GenerateId()),
@@ -30,7 +29,7 @@ namespace SDK
 
 	bool TimerImpl::IsSingleShot() const
 	{
-//		LockGuard l(propLock_);
+		LockGuard l(propLock_);
 		return singleShot_;
 	}
 
@@ -40,33 +39,9 @@ namespace SDK
 		singleShot_ = true;
 	}
 
-	bool TimerImpl::IsDetached() const
-	{
-//		LockGuard l(propLock_);
-		return detached_;
-	}
-
-	void TimerImpl::SetDetached()
-	{
-		LockGuard l(propLock_);
-		detached_ = true;
-	}
-
-	bool TimerImpl::IsDefunct() const
-	{
-//		LockGuard l(propLock_);
-		return defunct_;
-	}
-
-	void TimerImpl::SetDefunct()
-	{
-		LockGuard l(propLock_);
-		defunct_ = true;
-	}
-
 	bool TimerImpl::IsActive() const
 	{
-//		LockGuard l(propLock_);
+		LockGuard l(propLock_);
 		return active_;
 	}
 

@@ -34,10 +34,10 @@ namespace SDK
 
 			~SharedPtr()
 			{
+				LockGuard l(lock_);
 				this->Release();
 				if (!this->IsSingleNode())
 				{
-					LockGuard l(lock_);
 					next_->prev_ = prev_;
 					prev_->next_ = next_;
 					prev_ = NULL;

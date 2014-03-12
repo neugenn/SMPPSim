@@ -2,16 +2,18 @@ sdk_dir = ../../../src/sdk
 timer = $(sdk_dir)/timer
 lock = $(sdk_dir)/lock
 threads = $(sdk_dir)/threads
+sharedptr = $(sdk_dir)/sharedptr
 test_app = test
 objects = TimerTests.o TimerControllerTests.o timerimpltests.o mocktimer.o mocktimercontroller.o main.o
 
 include $(sdk_dir)/SdkLibMakefile
 
-CXXFLAGS = $(DEBUG) -Wall -I. -I$(timer) -I$(lock) -I$(threads) -I/usr/local/include
+CXXFLAGS = $(DEBUG) -Wall -I. -I$(timer) -I$(lock) -I$(threads) -I$(sharedptr) -I/usr/local/include
 
 all: $(test_app)
 	./$(test_app)
 
+CPPFLAGS = -DUNIT_TEST
 $(test_app) : LFLAGS = -L$(sdk_dir) -l$(SDK) -L/usr/local/lib -lcppunit 
 $(test_app): $(SDKLIB) $(objects)
 	$(CXX) $(CXXFLAGS) $(objects) -o $(test_app) $(LFLAGS)

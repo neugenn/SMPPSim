@@ -6,15 +6,18 @@
 
 namespace SDK
 {
-	class TestTimer : public Timer
+	namespace TEST
 	{
-		public:
-			TestTimer() : Timer() {}
-			~TestTimer() {}
+		class Timer : public SDK::Timer
+		{
+			public:
+				Timer(SDK::TimerCallback* c = NULL) : SDK::Timer(c) {}
+				~Timer() {}
 
-		public:
-			const TimerImpl* Impl() const;
-	};
+			public:
+				SharedPtr<TimerImpl>& Impl();
+		};
+	}
 }
 
 #endif // TESTTIMER_H_

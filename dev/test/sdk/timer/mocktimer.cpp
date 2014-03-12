@@ -2,8 +2,11 @@
 
 namespace SDK
 {
-	const TimerImpl* TestTimer::Impl() const
+	namespace TEST
 	{
-		return impl_;
+		SharedPtr<TimerImpl>& Timer::Impl()
+		{
+			return impl_;
+		}
 	}
 }

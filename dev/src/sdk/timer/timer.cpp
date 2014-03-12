@@ -1,6 +1,7 @@
 #include <cstddef>
 #include "timer.h"
 #include "TimerController.h"
+#include <iostream>
 
 namespace SDK
 {
@@ -10,10 +11,7 @@ namespace SDK
 
 	Timer::~Timer()
 	{
-		if (impl_->IsDetached())
-		{
-			impl_->SetDefunct();
-		}
+		this->Stop();
 	}
 
 	bool Timer::IsRunning() const
@@ -28,11 +26,6 @@ namespace SDK
 			return;
 		}
 
-		if (!impl_->IsDetached())
-		{
-			impl_->SetDetached();
-		}
-
 		impl_->SetActive();
 		impl_->SetTimeout(sec);
 		TimerController::GetInstance().Add(impl_);
@@ -41,5 +34,17 @@ namespace SDK
 	void Timer::Stop()
 	{
 		impl_->SetInactive();
+	}
+
+	/*
+	void Timer::Reset()
+	{
+		impl_->Reset();
+	}
+	*/
+
+	timer_id_t Timer::GetID() const
+	{
+		return impl_->GetID();
 	}
 }

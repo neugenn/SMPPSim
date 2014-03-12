@@ -4,14 +4,38 @@
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TimerTests);
 
+using SDK::TEST::TimerController;
+using SDK::TEST::Timer;
 using SDK::TimerImpl;
-using SDK::TestTimer;
-using SDK::TestTimerController;
+using SDK::SharedPtr;
+
+class TimerTests::TimerObserver : public SDK::TimerCallback
+{
+	public:
+		TimerObserver() : calledBack_(false) {}
+		~TimerObserver() {}
+
+		virtual void Elapsed()
+		{
+			calledBack_ = true;
+		}
+
+		bool Notified() const
+		{
+			return calledBack_;
+		}
+
+	private:
+		bool calledBack_;
+};
 
 void TimerTests::setUp()
 {
-	timer_ = new TestTimer();
-	TestTimerController::SetTestInstance();
+	controller_ = TimerController::GetTestInstance();
+	CPPUNIT_ASSERT(controller_->TimerQueue().empty());
+
+	observer_ = new TimerTests::TimerObserver;
+	timer_ = new Timer(observer_);
 	timer_->Start(10);
 }
 
@@ -19,6 +43,11 @@ void TimerTests::tearDown()
 {
 	delete timer_;
 	timer_ = NULL;
+
+	delete observer_;
+	observer_ = NULL;
+
+	TimerController::ReleaseTestInstance(controller_);
 }
 
 void TimerTests::testCreation()
@@ -31,81 +60,36 @@ void TimerTests::testRunningStateForStartedTimer()
 	CPPUNIT_ASSERT(timer_->IsRunning());
 }
 
-void TimerTests::testDefunctStateForStartedTimer()
-{
-	const TimerImpl* pi = timer_->Impl();
-	CPPUNIT_ASSERT(!pi->IsDefunct());
-}
-
-void TimerTests::testDetachedStateForStartedTimer()
-{
-	const TimerImpl* pi = timer_->Impl();
-	CPPUNIT_ASSERT(pi->IsDetached());
-}
-
 void TimerTests::testRunningStateForStoppedTimer()
 {
 	timer_->Stop();
 	CPPUNIT_ASSERT(!timer_->IsRunning());
 }
 
-void TimerTests::testDefunctStateForStoppedTimer()
+void TimerTests::testCallbackForElapsedTimer()
 {
-	timer_->Stop();
-	const TimerImpl* pi = timer_->Impl();
-	CPPUNIT_ASSERT(!pi->IsDefunct());
+	controller_->GetCondVar().SetTmoResponse(true);
+	controller_->RunEventLoop();
+
+	CPPUNIT_ASSERT(observer_->Notified());
 }
 
-void TimerTests::testDetachedStateForStoppedTimer()
+void TimerTests::testCallbackForActiveTimer()
 {
-	timer_->Stop();
-	const TimerImpl* pi = timer_->Impl();
-	CPPUNIT_ASSERT(pi->IsDetached());
+	controller_->GetCondVar().SetTmoResponse(false);
+	controller_->RunEventLoop();
+
+	CPPUNIT_ASSERT(!observer_->Notified());
 }
 
-void TimerTests::testImplForStartedScopedTimer()
+void TimerTests::testCallbackForOutOfScopeTimer()
 {
-	const TimerImpl* pi = NULL;
+	TimerObserver o;
 	{
-		TestTimer t;
+		Timer t(&o);
 		t.Start(10);
-		pi = t.Impl();
 	}
-	CPPUNIT_ASSERT(NULL != pi);
-}
 
-void TimerTests::testDetachedStateForStartedScopedTimer()
-{
-	const TimerImpl* pi = NULL;
-	{
-		TestTimer t;
-		t.Start(10);
-		pi = t.Impl();
-	}
-	CPPUNIT_ASSERT(pi->IsDetached());
-}
-
-void TimerTests::testDefunctStateForStartedScopedTimer()
-{
-	const TimerImpl* pi = NULL;
-	{
-		TestTimer t;
-		t.Start(10);
-		pi = t.Impl();
-	}
-	CPPUNIT_ASSERT(pi->IsDefunct());
-}
-
-void TimerTests::testDefaultDefunctStateForTimer()
-{
-	TestTimer t;
-	const TimerImpl* pi = t.Impl();
-	CPPUNIT_ASSERT(!pi->IsDefunct());
-}
-
-void TimerTests::testDefaultDetachedStateForTimer()
-{
-	TestTimer t;
-	const TimerImpl* pi = t.Impl();
-	CPPUNIT_ASSERT(!pi->IsDetached());
+	controller_->RunEventLoop();
+	CPPUNIT_ASSERT(!observer_->Notified());
 }

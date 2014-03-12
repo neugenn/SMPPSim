@@ -1,15 +1,14 @@
 #ifndef TIMERIMPL_H
 #define TIMERIMPL_H
 
-#include "lock.h"
-#include "timercallback.h"
 #include <cstdlib>
 #include <time.h>
+#include "lock.h"
+#include "timercallback.h"
+#include "timerid.h"
 
 namespace SDK
 {
-	typedef unsigned int timer_id_t;
-
 	class TimerImpl
 	{
 		public:
@@ -20,10 +19,6 @@ namespace SDK
 
 			bool IsSingleShot() const;
 			void EnableSingleShot();
-			bool IsDetached() const;
-			void SetDetached();
-			bool IsDefunct() const;
-			void SetDefunct();
 			bool IsActive() const;
 			void SetActive();
 			void SetInactive();
@@ -45,13 +40,11 @@ namespace SDK
 		private:
 			bool active_;
 			bool singleShot_;
-			bool detached_;
-			bool defunct_;
 			time_t end_;
 			unsigned int delta_;
 			const timer_id_t id_;
 			TimerCallback* cbk_;
-			Lock propLock_;
+			mutable Lock propLock_;
 	};
 
 	bool operator==(const TimerImpl& lsh, const TimerImpl& rsh);

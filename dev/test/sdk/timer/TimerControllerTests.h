@@ -6,25 +6,32 @@ class TimerControllerTests : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE(TimerControllerTests);
 	CPPUNIT_TEST(testCreation);
 	CPPUNIT_TEST(testAddTimer);
-	CPPUNIT_TEST(testAddThreeTimers);
-	CPPUNIT_TEST(testPriorityWithThreeTimers);
+	CPPUNIT_TEST(testPriority);
 	CPPUNIT_TEST(testPriorityForRestartedTimer);
-	/*
-	CPPUNIT_TEST(testScopeRemoveTimer);
-	*/
+	CPPUNIT_TEST(testProcessedQueueSizeForOutOfScopeTimer);
+	CPPUNIT_TEST(testProcessedQueueSizeForElapsedTimer);
+	CPPUNIT_TEST(testProcessedQueueSizeForStoppedTimer);
+	CPPUNIT_TEST(testQueueSizeForOutOfScopeTimer);
+	CPPUNIT_TEST(testQueueSizeForElapsedTimer);
+	CPPUNIT_TEST(testQueueSizeForStoppedTimer);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
 		void testCreation();
 		void testAddTimer();
-		void testAddThreeTimers();
-		void testPriorityWithThreeTimers();
+		void testPriority();
 		void testPriorityForRestartedTimer();
+		void testProcessedQueueSizeForOutOfScopeTimer();
+		void testProcessedQueueSizeForStoppedTimer();
+		void testProcessedQueueSizeForElapsedTimer();
+		void testQueueSizeForOutOfScopeTimer();
+		void testQueueSizeForStoppedTimer();
+		void testQueueSizeForElapsedTimer();
 
 		void setUp();
 		void tearDown();
 
 	private:
-		SDK::TestTimerController* controller_;
-		const SDK::TestTimerController::TQueue* timers_;
+		SDK::TEST::TimerController* controller_;
+		const SDK::TimerController::TQueue* timers_;
 };

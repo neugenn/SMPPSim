@@ -33,28 +33,6 @@ void TimerImplTests::testExplicitSingleshotBehavior()
 	CPPUNIT_ASSERT(timer_->IsSingleShot());
 }
 
-void TimerImplTests::testDefaultDetachedBehavior()
-{
-	CPPUNIT_ASSERT(!timer_->IsDetached());
-}
-
-void TimerImplTests::testExplicitDetachedBehavior()
-{
-	timer_->SetDetached();
-	CPPUNIT_ASSERT(timer_->IsDetached());
-}
-
-void TimerImplTests::testDefaultDefunctBehavior()
-{
-	CPPUNIT_ASSERT(!timer_->IsDefunct());
-}
-
-void TimerImplTests::testExplicitDefunctBehavior()
-{
-	timer_->SetDefunct();
-	CPPUNIT_ASSERT(timer_->IsDefunct());
-}
-
 void TimerImplTests::testDefaultActiveBehavior()
 {
 	CPPUNIT_ASSERT(!timer_->IsActive());

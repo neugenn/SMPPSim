@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include "timercallback.h"
 #include "sharedptr.h"
+#include "timerid.h"
 
 namespace SDK
 {
@@ -24,9 +25,11 @@ namespace SDK
 			bool IsRunning() const;
 			void Start(unsigned int sec);
 			void Stop();
+			//void Reset();
+			timer_id_t GetID() const;
 
 		protected:
-			SharedPtr<TimerImpl> impl_;
+			SDK::SharedPtr<TimerImpl> impl_;
 	};
 }
 

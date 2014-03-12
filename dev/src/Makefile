@@ -8,7 +8,7 @@ application = smscsim
 
 include $(sdk_src)/SdkLibMakefile
 
-CXXFLAGS = $(DEBUG) -Wall -I$(network_src) -I$(logging_src) -I$(protocol_src) -I$(sdk_src)
+CXXFLAGS = $(DEBUG) -Wall -I$(network_src) -I$(logging_src) -I$(protocol_src) -I$(sdk_src) -I$(sdk_src)/sharedptr -I$(sdk_src)/lock
 
 all : $(application) 
 

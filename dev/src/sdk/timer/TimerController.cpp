@@ -22,9 +22,20 @@ namespace SDK
 
 	TimerController::TimerController() :
 			timers_(),
-			queueLock_(),
-			queueReady_(queueLock_)
-	{}
+			queueLock_(new Lock),
+			queueReady_(new CondVar(*queueLock_))
+	{
+	}
+
+	TimerController::TimerController(
+			Lock* l,
+			CondVar* c
+			) :
+			timers_(),
+			queueLock_(l),
+			queueReady_(c)
+	{
+	}
 
 	TimerController::~TimerController()
 	{
@@ -35,69 +46,71 @@ namespace SDK
 	{
 		assert(t->IsActive());
 
-		LockGuard l(queueLock_);
+		LockGuard l(*queueLock_);
 		timers_.push(t);
-		queueReady_.Signal();
+		queueReady_->Signal();
 	}
 
 	bool TimerController::Run()
 	{
+		bool r = true;
 		for(;;)
 		{
-			queueLock_.Acquire();
-
-			while (timers_.empty())
-			{
-				queueReady_.Wait();
-			}
-
-			SharedPtr<TimerImpl> p = timers_.top();
-			timers_.pop();
-
-			do
-			{
-				if (p->IsDefunct())
-				{
-				}
-
-				if (!p->IsActive())
-				{
-					break;
-				}
-
-				bool tmo = false;
-				queueReady_.Wait(p->SecUntilElapse(), &tmo);
-
-				if (!tmo)
-				{
-					timers_.push(p);
-					break;
-				}
-
-				if (p->IsActive())
-				{
-					TimerCallback* pcbk = p->GetCallback();
-					if (NULL != pcbk)
-					{
-						pcbk->Elapsed();
-						pcbk = NULL;
-					}
-
-					if (!p->IsSingleShot())
-					{
-						p->Reset();
-						timers_.push(p);
-					}
-					else
-					{
-						p->SetInactive();
-					}
-				}
-			}
-			while (false);
-
-			queueLock_.Release();
+			r = this->RunEventLoop();
 		}
+
+		return r;
+	}
+
+	bool TimerController::RunEventLoop()
+	{
+		queueLock_->Acquire();
+
+		while (timers_.empty())
+		{
+			queueReady_->Wait();
+		}
+
+		const SharedPtr<TimerImpl>& p = timers_.top();
+		do
+		{
+			if (!p->IsActive())
+			{
+				timers_.pop();
+				break;
+			}
+
+			bool tmo = false;
+			queueReady_->Wait(p->SecUntilElapse(), &tmo);
+
+			if (!tmo)
+			{
+				break;
+			}
+
+			if (p->IsActive())
+			{
+				TimerCallback* pcbk = p->GetCallback();
+				if (NULL != pcbk)
+				{
+					pcbk->Elapsed();
+				}
+				pcbk = NULL;
+
+				if (!p->IsSingleShot())
+				{
+					p->Reset();
+				}
+				else
+				{
+					p->SetInactive();
+					timers_.pop();
+				}
+			}
+		}
+		while (false);
+
+		queueLock_->Release();
 
 		return true;
 	}

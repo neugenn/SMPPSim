@@ -17,7 +17,7 @@ namespace SDK
 	{
 		bool operator()(Type x, Type y) const
 		{
-			return Compare()(*x, *y);
+			return (*x > *y);
 		}
 	};
 
@@ -29,6 +29,10 @@ namespace SDK
 
 		protected:
 			explicit TimerController();
+			explicit TimerController(
+					Lock* l,
+					CondVar* c
+					);
 
 		public:
 			virtual ~TimerController();
@@ -38,12 +42,15 @@ namespace SDK
 			virtual bool Run();
 
 		protected:
+			bool RunEventLoop();
+
+		protected:
 			static TimerController* TheInstance;
 			TQueue timers_;
 
 		private:
-			Lock queueLock_;
-			CondVar queueReady_;
+			SharedPtr<Lock> queueLock_;
+			SharedPtr<CondVar> queueReady_;
 	};
 }
 

@@ -12,12 +12,12 @@ namespace SDK
 	{
 		public:
 			CondVar(Lock& l);
-			~CondVar();
+			virtual ~CondVar();
 
 		public:
-			bool Wait();
-			bool Wait(unsigned int sec, bool* timedOut = NULL);
-			bool Signal();
+			virtual bool Wait();
+			virtual bool Wait(unsigned int sec, bool* timedOut = NULL);
+			virtual bool Signal();
 
 		private:
 			CondVar(const CondVar&);
