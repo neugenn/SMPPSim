@@ -71,12 +71,12 @@ namespace SDK
 			queueReady_->Wait();
 		}
 
-		const SharedPtr<TimerImpl>& p = timers_.top();
+		const SharedPtr<TimerImpl> p = timers_.top();
+		timers_.pop();
 		do
 		{
 			if (!p->IsActive())
 			{
-				timers_.pop();
 				break;
 			}
 
@@ -85,27 +85,25 @@ namespace SDK
 
 			if (!tmo)
 			{
+				timers_.push(p);
 				break;
 			}
 
-			if (p->IsActive())
+			TimerCallback* pcbk = p->GetCallback();
+			if (NULL != pcbk && p->IsActive())
 			{
-				TimerCallback* pcbk = p->GetCallback();
-				if (NULL != pcbk)
-				{
-					pcbk->Elapsed();
-				}
-				pcbk = NULL;
+				pcbk->Elapsed();
+			}
+			pcbk = NULL;
 
-				if (!p->IsSingleShot())
-				{
-					p->Reset();
-				}
-				else
-				{
-					p->SetInactive();
-					timers_.pop();
-				}
+			if (!p->IsSingleShot())
+			{
+				p->Reset();
+				timers_.push(p);
+			}
+			else
+			{
+				p->SetInactive();
 			}
 		}
 		while (false);

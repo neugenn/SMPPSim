@@ -36,12 +36,10 @@ namespace SDK
 		impl_->SetInactive();
 	}
 
-	/*
-	void Timer::Reset()
+	void Timer::SetSingleShot()
 	{
-		impl_->Reset();
+		impl_->EnableSingleShot();
 	}
-	*/
 
 	timer_id_t Timer::GetID() const
 	{

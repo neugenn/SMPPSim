@@ -35,14 +35,13 @@ namespace SDK
 			~SharedPtr()
 			{
 				LockGuard l(lock_);
-				this->Release();
-				if (!this->IsSingleNode())
+				if (this->IsSingleNode())
 				{
-					next_->prev_ = prev_;
-					prev_->next_ = next_;
-					prev_ = NULL;
-					next_ = NULL;
-					resource_ = NULL;
+					this->FreeResource();
+				}
+				else
+				{
+					this->Release();
 				}
 			}
 
@@ -92,6 +91,7 @@ namespace SDK
 				return count;
 			}
 
+		private:
 			void Acquire(const TNode& r)
 			{
 				resource_ = r.resource_;
@@ -101,13 +101,19 @@ namespace SDK
 				r.next_ = this;
 			}
 
+			void FreeResource()
+			{
+				delete resource_;
+				resource_ = NULL;
+			}
+
 			void Release()
 			{
-				if (this->IsSingleNode())
-				{
-					delete resource_;
-					resource_ = NULL;
-				}
+				next_->prev_ = prev_;
+				prev_->next_ = next_;
+				prev_ = NULL;
+				next_ = NULL;
+				resource_ = NULL;
 			}
 
 		private:

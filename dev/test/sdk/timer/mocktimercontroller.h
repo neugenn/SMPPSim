@@ -24,9 +24,10 @@ namespace SDK
 				static void ReleaseTestInstance(TimerController*& p);
 
 				const SDK::TimerController::TQueue& TimerQueue();
-				bool RunEventLoop();
+				void ProcessQueueWithTimeout();
+				void ProcessQueueWithoutTimeout();
 
-			public:
+			private:
 				TEST::CondVar& GetCondVar()
 				{
 					return *cond_;

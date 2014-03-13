@@ -25,7 +25,7 @@ namespace SDK
 			bool IsRunning() const;
 			void Start(unsigned int sec);
 			void Stop();
-			//void Reset();
+			void SetSingleShot();
 			timer_id_t GetID() const;
 
 		protected:

@@ -36,7 +36,6 @@ void TimerTests::setUp()
 
 	observer_ = new TimerTests::TimerObserver;
 	timer_ = new Timer(observer_);
-	timer_->Start(10);
 }
 
 void TimerTests::tearDown()
@@ -52,11 +51,12 @@ void TimerTests::tearDown()
 
 void TimerTests::testCreation()
 {
-	CPPUNIT_ASSERT(timer_->IsRunning());
+	CPPUNIT_ASSERT(NULL !=timer_);
 }
 
 void TimerTests::testRunningStateForStartedTimer()
 {
+	timer_->Start(10);
 	CPPUNIT_ASSERT(timer_->IsRunning());
 }
 
@@ -68,28 +68,28 @@ void TimerTests::testRunningStateForStoppedTimer()
 
 void TimerTests::testCallbackForElapsedTimer()
 {
-	controller_->GetCondVar().SetTmoResponse(true);
-	controller_->RunEventLoop();
-
+	timer_->Start(10);
+	controller_->ProcessQueueWithTimeout();
 	CPPUNIT_ASSERT(observer_->Notified());
 }
 
 void TimerTests::testCallbackForActiveTimer()
 {
-	controller_->GetCondVar().SetTmoResponse(false);
-	controller_->RunEventLoop();
-
+	timer_->Start(10);
+	controller_->ProcessQueueWithoutTimeout();
 	CPPUNIT_ASSERT(!observer_->Notified());
 }
 
 void TimerTests::testCallbackForOutOfScopeTimer()
 {
+	SDK::timer_id_t id;
 	TimerObserver o;
 	{
 		Timer t(&o);
 		t.Start(10);
+		id = t.GetID();
 	}
 
-	controller_->RunEventLoop();
+	controller_->ProcessQueueWithTimeout();
 	CPPUNIT_ASSERT(!observer_->Notified());
 }

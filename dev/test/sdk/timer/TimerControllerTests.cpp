@@ -67,8 +67,38 @@ void TimerControllerTests::testPriorityForRestartedTimer()
 	t1.Stop();
 	t1.Start(7);
 
+	controller_->ProcessQueueWithTimeout();
 	const SharedPtr<TimerImpl>& firstToElapseAfterRestart = timers_->top();
 	CPPUNIT_ASSERT(firstToElapseAfterRestart->GetID() == t1.GetID());
+}
+
+void TimerControllerTests::testQueueSizeForRestartedTimer()
+{
+	Timer t1;
+	t1.Start(9);
+
+	Timer t2;
+	t2.Start(8);
+
+	t1.Stop();
+	t1.Start(7);
+
+	CPPUNIT_ASSERT(3 == timers_->size());
+}
+
+void TimerControllerTests::testProcessedQueuePriority()
+{
+	Timer t1;
+	t1.Start(4);
+
+	Timer t2;
+	t2.Start(2);
+
+	controller_->ProcessQueueWithTimeout();
+	controller_->ProcessQueueWithTimeout();
+
+	const SharedPtr<TimerImpl>& firstToExpire = timers_->top();
+	CPPUNIT_ASSERT(firstToExpire->GetID() == t2.GetID());
 }
 
 void TimerControllerTests::testProcessedQueueSizeForOutOfScopeTimer()
@@ -78,22 +108,18 @@ void TimerControllerTests::testProcessedQueueSizeForOutOfScopeTimer()
 		t.Start(9);
 	}
 
-	controller_->RunEventLoop();
+	controller_->ProcessQueueWithTimeout();
 	CPPUNIT_ASSERT(0 == timers_->size());
 }
 
 void TimerControllerTests::testProcessedQueueSizeForStoppedTimer()
 {
-	/*
 	Timer t;
 	t.Start(9);
 	t.Stop();
 
-	controller_->GetCondVar().SetTmoResponse(false);
-	controller_->RunEventLoop();
-	//CPPUNIT_ASSERT(0 == timers_->size());
-	*/
-	CPPUNIT_ASSERT(false);
+	controller_->ProcessQueueWithTimeout();
+	CPPUNIT_ASSERT(0 == timers_->size());
 }
 
 void TimerControllerTests::testProcessedQueueSizeForElapsedTimer()
@@ -101,8 +127,7 @@ void TimerControllerTests::testProcessedQueueSizeForElapsedTimer()
 	Timer t;
 	t.Start(9);
 
-	controller_->GetCondVar().SetTmoResponse(true);
-	controller_->RunEventLoop();
+	controller_->ProcessQueueWithTimeout();
 
 	CPPUNIT_ASSERT(1 == timers_->size());
 }
@@ -132,4 +157,14 @@ void TimerControllerTests::testQueueSizeForElapsedTimer()
 	t.Start(9);
 
 	CPPUNIT_ASSERT(1 == timers_->size());
+}
+
+void TimerControllerTests::testQueueSizeForSingleShotTimer()
+{
+	Timer t;
+	t.Impl()->EnableSingleShot();
+	t.Start(9);
+	controller_->ProcessQueueWithTimeout();
+
+	CPPUNIT_ASSERT(0 == timers_->size());
 }

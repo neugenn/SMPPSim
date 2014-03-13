@@ -48,9 +48,16 @@ namespace SDK
 			}
 		}
 
-		bool TimerController::RunEventLoop()
+		void TimerController::ProcessQueueWithTimeout()
 		{
-			return SDK::TimerController::RunEventLoop();
+			this->GetCondVar().SetTmoResponse(true);
+			SDK::TimerController::RunEventLoop();
+		}
+
+		void TimerController::ProcessQueueWithoutTimeout()
+		{
+			this->GetCondVar().SetTmoResponse(false);
+			SDK::TimerController::RunEventLoop();
 		}
 	}
 }
