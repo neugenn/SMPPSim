@@ -1,11 +1,49 @@
-CXXFLAGS = $(DEBUG) -c -Wall -I../network -I../logging
+network_src = ../network
+logging_src = ../logging
+dataType_src = dataType
+pdu_src = pdu
+objects = PduDataType.o Integer.o OctetString.o COctetString.o AsciiValidation.o DecimalValidation.o \
+	HexValidation.o PduHeader.o
+ 
+CXXFLAGS += $(DEBUG) -c -Wall -fpic 
+VPATH = $(dataType_src):$(pdu_src)
 
-all: session.o pdu.o 
+include SmppLibMakefile
+
+all: $(SMPPLIB)
+
+CXXFLAGS += -I$(network_src) -I$(logging_src)
+$(SMPPLIB): $(objects)
+	$(CXX) $(DEBUG) -shared -o $@ $(objects)
 
 session.o: session.cpp
 
-pdu.o: pdu.cpp
+PduDataType.o: PduDataType.cpp
+	$(CXX) $(CXXFLAGS) $^
+
+OctetString.o: OctetString.cpp
+	$(CXX) $(CXXFLAGS) $^
+
+Integer.o: Integer.cpp
+	$(CXX) $(CXXFLAGS) $^
+
+COctetString.o: COctetString.cpp
+	$(CXX) $(CXXFLAGS) $^
+
+AsciiValidation.o: AsciiValidation.cpp
+	$(CXX) $(CXXFLAGS) $^
+
+DecimalValidation.o: DecimalValidation.cpp
+	$(CXX) $(CXXFLAGS) $^
+
+HexValidation.o: HexValidation.cpp
+	$(CXX) $(CXXFLAGS) $^
+
+CXXFLAGS += -I$(dataType_src)
+PduHeader.o: PduHeader.cpp
+	$(CXX) $(CXXFLAGS) $^
 
 clean:
-	@-rm -f *.o
+	@-rm -f $(SMPPLIB)
+	@-rm -f $(objects)
 

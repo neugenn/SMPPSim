@@ -1,0 +1,11 @@
+LIBNAME = libsmpp
+LIBTYPE = .so
+
+sys = $(shell $(CXX) -dumpmachine)
+ifneq (, $(findstring cygwin, $(sys)))
+LIBTYPE = .dll
+endif
+
+SMPPLIB = $(LIBNAME)$(LIBTYPE)
+SMPP = smpp
+

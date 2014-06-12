@@ -1,7 +1,6 @@
 #include "server.h"
 #include "hostaddress.h"
 #include "logger.h"
-#include "pdu.h"
 #include "sdk/timer/timer.h"
 #include <unistd.h>
 
