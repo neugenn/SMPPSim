@@ -5,24 +5,40 @@
 
 namespace SMPP
 {
-    void PduDataType::GetFormattedData(const unsigned char *data, size_t len, std::string &out)
+    PduDataType::PduDataType() : name_()
+    {}
+
+    const std::string& PduDataType::Name() const
     {
-        assert(NULL != data);
+        return name_;
+    }
 
-        std::stringstream s;
-        for (size_t i = 0; i < len; ++i)
-        {
-            s << std::setfill('0') << std::setw(2) << std::hex;
-            s << (unsigned int)data[i];
-        }
-
-        out = s.str();
+    PduDataType::PduDataType(const char *name) : name_(name)
+    {
+        name_ += " ";
     }
 
     std::ostream& operator<<(std::ostream& s, const PduDataType& data)
     {
-        std::string res;
-        PduDataType::GetFormattedData(data.Data(), data.Size(), res);
-        return s << res;
+        const unsigned char* buf = data.Data();
+        for (size_t i = 0; i < data.Size(); ++i)
+        {
+            s << std::setfill('0') << std::setw(2) << std::hex;
+            s << static_cast<unsigned int>(buf[i]);
+        }
+        return s;
+    }
+
+    bool operator==(const PduDataType& lsh, const PduDataType& rsh)
+    {
+        const bool equalSizes = (lsh.Size() == rsh.Size());
+        const bool equalData = (0 == memcmp(lsh.Data(), rsh.Data(), lsh.Size()));
+
+        return (equalSizes && equalData);
+    }
+
+    bool operator!=(const PduDataType& lsh, const PduDataType& rsh)
+    {
+        return (!(lsh == rsh));
     }
 }

@@ -10,6 +10,9 @@ class PduHeaderTests : public CppUnit::TestFixture
     CPPUNIT_TEST(testCreateWithNULLDataBuffer);
     CPPUNIT_TEST(testFormattedData);
     CPPUNIT_TEST(testSize);
+    CPPUNIT_TEST(testOperatorEqual);
+    CPPUNIT_TEST(testOperatorNotEqual);
+    CPPUNIT_TEST(testEmptyHeader);
     CPPUNIT_TEST_SUITE_END();
 
     public:
@@ -18,6 +21,9 @@ class PduHeaderTests : public CppUnit::TestFixture
     void testCreateWithNULLDataBuffer();
     void testFormattedData();
     void testSize();
+    void testOperatorEqual();
+    void testOperatorNotEqual();
+    void testEmptyHeader();
 
     private:
     SMPP::PduHeader* pHeader_;
@@ -48,9 +54,9 @@ void PduHeaderTests::tearDown()
 
 void PduHeaderTests::testFormattedData()
 {
-    std::string r;
-    SMPP::PduDataType::GetFormattedData(pHeader_->Data(), pHeader_->Size(), r);
-    CPPUNIT_ASSERT_EQUAL(std::string("00000010000000010000000000000001"), r);
+    std::stringstream s;
+    s << *pHeader_;
+    CPPUNIT_ASSERT_EQUAL(std::string("00000010000000010000000000000001"), s.str());
 }
 
 void PduHeaderTests::testSize()
@@ -61,6 +67,28 @@ void PduHeaderTests::testSize()
 void PduHeaderTests::testCreateWithNULLDataBuffer()
 {
     CPPUNIT_ASSERT_THROW(SMPP::PduHeader(NULL), std::invalid_argument);
+}
+
+void PduHeaderTests::testOperatorEqual()
+{
+    SMPP::PduHeader h1(Data);
+    SMPP::PduHeader h2(Data);
+    CPPUNIT_ASSERT_EQUAL(h1, h2);
+}
+
+void PduHeaderTests::testOperatorNotEqual()
+{
+    SMPP::PduHeader h1(Data);
+    SMPP::PduHeader h2(Data + 1);
+    CPPUNIT_ASSERT(h1 != h2);
+}
+
+void PduHeaderTests::testEmptyHeader()
+{
+    SMPP::PduHeader h;
+    std::stringstream s;
+    s << h;
+    CPPUNIT_ASSERT_EQUAL(std::string("00000000000000000000000000000000"), s.str());
 }
 
 #endif // PDUHEADERTESTS_H_

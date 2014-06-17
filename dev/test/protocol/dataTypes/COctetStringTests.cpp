@@ -25,7 +25,7 @@ template <bool T>
 class TestingCOctetString : public SMPP::COctetString<TestingValidation<T> >
 {
 public:
-   TestingCOctetString(const unsigned char* data) : SMPP::COctetString<TestingValidation<T> >(data)
+   TestingCOctetString(const unsigned char* data, size_t len) : SMPP::COctetString<TestingValidation<T> >(data, len)
    {}
 };
 
@@ -34,6 +34,7 @@ class COctetStringTests : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE(COctetStringTests);
     CPPUNIT_TEST(testCreateWithValidationFailure);
     CPPUNIT_TEST(testCreateWithNULLDataBuffer);
+    CPPUNIT_TEST(testCreateWithSpecificSize);
     CPPUNIT_TEST(testEmptyStringSize);
     CPPUNIT_TEST(testEmptyStringData);
     CPPUNIT_TEST(testFormattedData);
@@ -45,6 +46,7 @@ class COctetStringTests : public CppUnit::TestFixture
     virtual void tearDown();
     void testCreateWithValidationFailure();
     void testCreateWithNULLDataBuffer();
+    void testCreateWithSpecificSize();
     void testEmptyStringSize();
     void testEmptyStringData();
     void testFormattedData();
@@ -55,16 +57,15 @@ class COctetStringTests : public CppUnit::TestFixture
 
     public:
     static const unsigned char AsciiData[5];
-
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(COctetStringTests);
 
-const unsigned char COctetStringTests::AsciiData[5] = { 0x31, 0x32, 0x61, 0x41, 0x00 };
+const unsigned char COctetStringTests::AsciiData[5] = { 0x31, 0x32, 0x61, 0x41, 0x42 };
 
 void COctetStringTests::setUp()
 {
-    pString_ = new TestingCOctetString<true>(&AsciiData[0]);
+    pString_ = new TestingCOctetString<true>(&AsciiData[0], 5);
     CPPUNIT_ASSERT(NULL != pString_);
 }
 
@@ -75,12 +76,20 @@ void COctetStringTests::tearDown()
 
 void COctetStringTests::testCreateWithValidationFailure()
 {
-    CPPUNIT_ASSERT_THROW(new TestingCOctetString<false>(&COctetStringTests::AsciiData[0]), std::invalid_argument);
+    CPPUNIT_ASSERT_THROW(new TestingCOctetString<false>(&COctetStringTests::AsciiData[0], 5), std::invalid_argument);
 }
 
 void COctetStringTests::testCreateWithNULLDataBuffer()
 {
-    CPPUNIT_ASSERT_THROW(SMPP::CString(NULL), std::invalid_argument);
+    CPPUNIT_ASSERT_THROW(SMPP::CString(NULL, 1), std::invalid_argument);
+}
+
+void COctetStringTests::testCreateWithSpecificSize()
+{
+    SMPP::CString cs(&AsciiData[0], 3);
+    std::stringstream s;
+    s << cs;
+    CPPUNIT_ASSERT_EQUAL(std::string("313200"), s.str());
 }
 
 void COctetStringTests::testEmptyStringSize()
@@ -92,16 +101,16 @@ void COctetStringTests::testEmptyStringSize()
 void COctetStringTests::testEmptyStringData()
 {
     SMPP::CString s;
-    std::string r;
-    SMPP::PduDataType::GetFormattedData(s.Data(), s.Size(), r);
-    CPPUNIT_ASSERT_EQUAL(std::string("00"), r);
+    std::stringstream r;
+    r << s;
+    CPPUNIT_ASSERT_EQUAL(std::string("00"), r.str());
 }
 
 void COctetStringTests::testFormattedData()
 {
-    std::string r;
-    SMPP::PduDataType::GetFormattedData(pString_->Data(), pString_->Size(), r);
-    CPPUNIT_ASSERT_EQUAL(std::string("3132614100"), r);
+    std::stringstream s;
+    s << *pString_;
+    CPPUNIT_ASSERT_EQUAL(std::string("3132614100"), s.str());
 }
 
 void COctetStringTests::testSize()

@@ -1,4 +1,4 @@
-CXXFLAGS = $(DEBUG) -c -I../sdk/threads -I../logging -I../protocol
+CXXFLAGS = $(DEBUG) -c -I../sdk/threads -I../logging -I../protocol -I../protocol/pdu -I../protocol/dataType
 
 all: hostaddress.o socket.o tcpserver.o server.o
 

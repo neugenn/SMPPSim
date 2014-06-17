@@ -18,20 +18,23 @@ namespace SMPP
         /*!
          * \brief COctetString Creates an empty string containing only the NULL character
          */
-        COctetString();
+        COctetString(const char* name = "");
 
         /*!
          * @brief COctetString Creates a string object from a raw data buffer
-         * @param data The data buffer
+         * @param[in] data The data buffer
+         * @param[in] len The length of the buffer (including the NULL terminating character)
          * @throw std::invalid_argument The data buffer is NULL of the data is invalid
          * @see Validation strategy
          */
-        COctetString(const unsigned char* data);
+        COctetString(const unsigned char* data, size_t len, const char* name = "");
 
         ~COctetString();
 
         virtual const unsigned char* Data() const;
         virtual size_t Size() const;
+        const std::string& Value() const;
+        void SetValue(std::string& value);
 
     private:
         T validator_;

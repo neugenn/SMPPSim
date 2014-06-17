@@ -3,6 +3,8 @@
 
 #include <string>
 #include <ostream>
+#include <sstream>
+#include <cstring>
 
 namespace SMPP
 {
@@ -12,8 +14,15 @@ namespace SMPP
     class PduDataType
     {
     public:
-        PduDataType() {}
+        PduDataType();
+        PduDataType(const char* name);
         virtual ~PduDataType() {}
+
+        /*!
+         * \brief Name
+         * \return
+         */
+        const std::string& Name() const;
 
         /*!
          * @brief Access to the underlying storage of the data type
@@ -25,13 +34,12 @@ namespace SMPP
          */
         virtual size_t Size() const = 0;
 
-        /*!
-         * @brief
-         * @param[out] s
-         */
-        static void GetFormattedData(const unsigned char* data, size_t len, std::string& out);
+    private:
+        std::string name_;
     };
 
     std::ostream& operator<<(std::ostream& s, const PduDataType& data);
+    bool operator==(const PduDataType& lsh, const PduDataType& rsh);
+    bool operator!=(const PduDataType& lsh, const PduDataType& rsh);
 }
 #endif // PDUDATATYPE_H_

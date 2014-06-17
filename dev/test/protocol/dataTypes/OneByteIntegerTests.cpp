@@ -47,7 +47,7 @@ void OneByteIntegerTests::tearDown()
 
 void OneByteIntegerTests::testCreateWithNULLDataBuffer()
 {
-    CPPUNIT_ASSERT_THROW(SMPP::OneByteInteger(NULL), std::invalid_argument);
+    CPPUNIT_ASSERT_THROW(SMPP::OneByteInteger(NULL, "test"), std::invalid_argument);
 }
 
 void OneByteIntegerTests::testSize()
@@ -57,17 +57,17 @@ void OneByteIntegerTests::testSize()
 
 void OneByteIntegerTests::testGetFormattedData()
 {
-    std::string r;
-    SMPP::PduDataType::GetFormattedData(pInt_->Data(), pInt_->Size(), r);
-    CPPUNIT_ASSERT_EQUAL(std::string("01"), r);
+    std::stringstream s;
+    s << *pInt_;
+    CPPUNIT_ASSERT_EQUAL(std::string("01"), s.str());
 }
 
 void OneByteIntegerTests::testCreateNULLInteger()
 {
     SMPP::OneByteInteger i;
-    std::string r;
-    SMPP::PduDataType::GetFormattedData(i.Data(), i.Size(), r);
-    CPPUNIT_ASSERT_EQUAL(std::string("00"), r);
+    std::stringstream s;
+    s << i;
+    CPPUNIT_ASSERT_EQUAL(std::string("00"), s.str());
 }
 
 #endif // ONEBYTEINTEGERTESTS_H_

@@ -3,51 +3,77 @@
 
 #include "PduDataType.h"
 #include <stdexcept>
+#include <stdint.h>
 
 namespace SMPP
 {
     /*!
      * @brief Unsigned value with the defined number of octets
      */
-    template <size_t T>
+    template <typename T>
     class Integer : public PduDataType
     {
     public:
+        /*!
+         * @brief The maximum value which can be hold by an Integer object
+         */
+        static uint32_t MaxValue();
+
          /*!
          * @brief Creates an Integer object which is zero filled
          */
-        Integer();
+        Integer(const char* name = "");
 
         /*!
-         * @brief Creates an Integer object
-         * @param data Data buffer used as the value of the Integer object
+         * @brief Creates an Integer object from a stream of bytes
+         * @param data Big Endian data buffer used as the value of the Integer object
          * @throw std::invalid_argument Data buffer is NULL
          */
-        explicit Integer(const unsigned char* data);
+        Integer(const unsigned char* data, const char* name = "");
 
        ~Integer();
 
+        /*!
+         * @brief BigEndian data buffer
+         */
         virtual const unsigned char* Data() const;
+
+        /*!
+         * @brief The size of the data buffer
+         * @see Data
+         */
         virtual size_t Size() const;
 
+        /*!
+         * @brief Set the value of the integer object
+         * @throw std::invalid_argument if the value exceeds the maximum allowed
+         * @see MaxValue
+         */
+        void SetValue(uint32_t val);
+
+        /*!
+         * @brief The value of the Integer object
+         */
+        uint32_t Value() const;
+
     private:
-        unsigned char data_[T];
+        unsigned char data_[sizeof(T)];
     };
 
     /*!
      * @brief OneByteInteger Unsigned value containing 1 octet
      */
-    typedef Integer<size_t(1)> OneByteInteger;
+    typedef Integer<unsigned char> OneByteInteger;
 
     /*!
      * @brief OneByteInteger Unsigned value containing 2 octets
      */
-    typedef Integer<size_t(2)> TwoByteInteger;
+    typedef Integer<uint16_t> TwoByteInteger;
 
     /*!
      * @brief OneByteInteger Unsigned value containing 4 octets
      */
-    typedef Integer<size_t(4)> FourByteInteger;
+    typedef Integer<uint32_t> FourByteInteger;
 }
 
 #endif // INTEGER_H_

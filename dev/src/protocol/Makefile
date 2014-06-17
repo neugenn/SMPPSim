@@ -3,7 +3,7 @@ logging_src = ../logging
 dataType_src = dataType
 pdu_src = pdu
 objects = PduDataType.o Integer.o OctetString.o COctetString.o AsciiValidation.o DecimalValidation.o \
-	HexValidation.o PduHeader.o
+	HexValidation.o PduHeader.o Pdu.o BindTransmitter.o BindTransmitterResp.o
  
 CXXFLAGS += $(DEBUG) -c -Wall -fpic 
 VPATH = $(dataType_src):$(pdu_src)
@@ -41,6 +41,15 @@ HexValidation.o: HexValidation.cpp
 
 CXXFLAGS += -I$(dataType_src)
 PduHeader.o: PduHeader.cpp
+	$(CXX) $(CXXFLAGS) $^
+
+Pdu.o: Pdu.cpp
+	$(CXX) $(CXXFLAGS) $^
+
+BindTransmitter.o: BindTransmitter.cpp
+	$(CXX) $(CXXFLAGS) $^
+
+BindTransmitterResp.o: BindTransmitterResp.cpp
 	$(CXX) $(CXXFLAGS) $^
 
 clean:

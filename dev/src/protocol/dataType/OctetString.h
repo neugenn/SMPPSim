@@ -15,7 +15,7 @@ namespace SMPP
         /*!
          * @brief Creates an octet string object containing of a single character with the value 0x00
          */
-        OctetString();
+        OctetString(const char* name = "");
 
         /*!
          * @brief Creates an octet sring object from the provided data buffer
@@ -23,7 +23,7 @@ namespace SMPP
          * @param maxSize The size of the data buffer
          * @throw std::invalid_argument The data buffer is NULL
          */
-        OctetString(const unsigned char* data, size_t maxSize);
+        OctetString(const unsigned char* data, size_t maxSize, const char* name = "");
 
         OctetString(const OctetString&);
         OctetString& operator=(const OctetString&);
@@ -36,9 +36,6 @@ namespace SMPP
         unsigned char* data_;
         size_t maxSize_;
     };
-
-    bool operator==(const OctetString& lsh, const OctetString& rsh);
-    bool operator!=(const OctetString&lsh, const OctetString&rsh);
 }
 
 #endif // OCTETSTRING_H

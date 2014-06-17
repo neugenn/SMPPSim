@@ -27,20 +27,20 @@ namespace SMPP
         return *this;
     }
 
-    OctetString::OctetString() : data_(NULL), maxSize_(1)
+    OctetString::OctetString(const char* name) : PduDataType(name), data_(NULL), maxSize_(1)
     {
         data_ = new unsigned char[1];
         bzero(data_, 1);
     }
 
-    OctetString::OctetString(const unsigned char* data, size_t maxSize) :
-    PduDataType(),
+    OctetString::OctetString(const unsigned char* data, size_t maxSize, const char* name) :
+    PduDataType(name),
     data_(NULL),
     maxSize_(maxSize)
     {
         if (NULL == data)
         {
-            throw std::invalid_argument("NULL data buffer !");
+            throw std::invalid_argument(Name() + "NULL data buffer !");
         }
 
         data_ = new unsigned char[maxSize_];
@@ -60,21 +60,5 @@ namespace SMPP
     size_t OctetString::Size() const
     {
         return maxSize_;
-    }
-
-    bool operator==(const OctetString& lsh, const OctetString& rsh)
-    {
-        std::string s1;
-        PduDataType::GetFormattedData(lsh.Data(), lsh.Size(), s1);
-
-        std::string s2;
-        PduDataType::GetFormattedData(rsh.Data(), rsh.Size(), s2);
-
-        return (s1 == s2);
-    }
-
-    bool operator!=(const OctetString& lsh, const OctetString& rsh)
-    {
-        return !(lsh == rsh);
     }
 }

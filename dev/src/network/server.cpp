@@ -6,7 +6,10 @@
 #include "logger.h"
 #include "session.h"
 #include "sessionmanager.h"
+#include "BindTransmitter.h"
+#include "BindTransmitterResp.h"
 #include <string>
+#include <iomanip>
 #include <vector>
 
 namespace Network
@@ -57,120 +60,63 @@ namespace Network
 						FILE_LOG(logERROR) << "Cannot connect with the SMPP client !";
 					}
 
-					SMPP::SmppSession* ps = new SMPP::SmppSession(client);
-					client = NULL;
+                    /*
+                    */
+                    unsigned char lenbuf[4];
+                    client->Read(&lenbuf[0], 4);
+                    SMPP::FourByteInteger dataLen(&lenbuf[0]);
 
-					m.Add(ps);
-					ps = NULL;
+                    FILE_LOG(logINFO) << "Data len: " << dataLen.Value();
 
-					/*
-						int dataLen = 0;
-						unsigned char* buffer = reinterpret_cast<unsigned char*>(&dataLen);
-						client->Read(buffer, sizeof(dataLen));
+                    unsigned char* data = new unsigned char[dataLen.Value()];
+                    memcpy(data, &lenbuf[0], 4);
+                    ssize_t count = client->Read(data + 4, dataLen.Value() - 4);
+                    FILE_LOG(logINFO) << "Read " << count << " bytes !";
 
-						dataLen = ntohl(dataLen);
-						FILE_LOG(logINFO) << "Data len: " << std::hex << std::showbase << dataLen;
+                    std::stringstream ss;
+                    for (size_t i = 0; i < count + 4; ++i)
+                    {
+                        ss << std::setfill('0') << std::setw(2) << std::hex << int(data[i]);
+                    }
+                    FILE_LOG(logINFO) << "Bytes received: " << ss.str();
 
-						int size = dataLen - 4;
-						unsigned char* data = new unsigned char[size];
-						client->Read(data, size);
+                    int tmp = 0;
+                    memcpy((void*)&tmp, data + 4, sizeof(tmp));
+                    FILE_LOG(logINFO) << "Command ID: " << std::setfill('0') << std::setw(2 * sizeof(tmp)) << std::hex << ntohl(tmp);
+                    if (0x00000002 == ntohl(tmp))
+                    {
+                        FILE_LOG(logINFO) << "BindTransmitter message received !";
+                        try
+                        {
+                            SMPP::BindTransmitter t(data, dataLen.Value());
+                            FILE_LOG(logINFO) << t;
 
-						unsigned char* it = data;
+                            SMPP::BindTransmitterResp tr;
+                            SMPP::PduHeader& trh = tr.GetHeader();
 
-						int tmp = 0;
+                            trh.SetSequenceNumber(t.GetHeader().GetSequenceNumber());
+                            tr.SetSystemId("EUGEN");
 
-						memcpy((void*)&tmp, it, sizeof(tmp));
-						it += sizeof(tmp);
-						FILE_LOG(logINFO) << "Command ID: " << std::setfill('0') << std::setw(2 * sizeof(tmp)) << std::hex << ntohl(tmp);
+                            FILE_LOG(logINFO) << tr;
 
-						memcpy((void*)&tmp, it, sizeof(tmp));
-						it += sizeof(tmp);
-						FILE_LOG(logINFO) << "Command STATUS: " << std::setfill('0') << std::setw(2 * sizeof(tmp)) << std::hex << ntohl(tmp);
+                            const unsigned char* toSend = tr.Data();
+                            std::stringstream ss;
+                            for (size_t i = 0; i < tr.Size(); ++i)
+                            {
+                                ss << std::setfill('0') << std::setw(2) << std::hex << int(toSend[i]);
+                            }
+                            FILE_LOG(logINFO) << "Bytes to send: " << ss.str();
 
-						memcpy((void*)&tmp, it, sizeof(tmp));
-						it += sizeof(tmp);
-						FILE_LOG(logINFO) << "Sequence Number: " << std::setfill('0') << std::setw(2 * sizeof(tmp)) << std::hex << ntohl(tmp);
+                            ssize_t count = client->Write(toSend, tr.Size());
+                            FILE_LOG(logINFO) << "Sent: " << count;
+                        }
+                        catch (std::exception& e)
+                        {
+                            FILE_LOG(logINFO) << "Exception !" << e.what();
+                        }
+                    }
 
-						std::string id((const char*)it);
-						FILE_LOG(logINFO) << "System ID: " << id; 
-						it += id.length() + 1;
-
-						std::string pass((const char*)it);
-						FILE_LOG(logINFO) << "Password: " << pass; 
-						it += pass.length() + 1;
-
-						std::string type((const char*)it);
-						FILE_LOG(logINFO) << "System Type: " << type; 
-						it += type.length() + 1;
-
-						unsigned char d = it[0];
-						FILE_LOG(logINFO) << "Interface version: " << std::setfill('0') << std::setw(2 * sizeof(int)) << std::hex << (int)d; 
-
-						it += sizeof(d);
-
-						d = it[0];
-						FILE_LOG(logINFO) << "Addr_ton: " << std::hex << std::showbase << (int)d; 
-						it += sizeof(d);
-
-						d = it[0];
-						FILE_LOG(logINFO) << "Addr_npi: " << std::hex << std::showbase << (int)d; 
-						it += sizeof(d);
-
-						std::string range((const char*)it);
-						FILE_LOG(logINFO) << "Address_range: " << std::hex << std::showbase << range;
-						delete[] data;
-
-						//send response
-						std::vector<unsigned char> resp;
-						int cl = 18;
-						cl = htonl(cl);
-
-						const unsigned char* pcl = reinterpret_cast<const unsigned char*>(&cl);
-
-						for (int i = 0; i < sizeof(cl); ++i)
-						{
-							resp.push_back(pcl[i]);
-						}
-
-						cl = 0x80000002;
-						cl = htonl(cl);
-						for (int i = 0; i < sizeof(cl); ++i)
-						{
-							resp.push_back(pcl[i]);
-						}
-
-						cl = 0x00000000;
-						cl = htonl(cl);
-						for (int i = 0; i < sizeof(cl); ++i)
-						{
-							resp.push_back(pcl[i]);
-						}
-
-						cl = 0x00000001;
-						cl = htonl(cl);
-						for (int i = 0; i < sizeof(cl); ++i)
-						{
-							resp.push_back(pcl[i]);
-						}
-
-						std::string smscid("Eugen");
-						pcl = reinterpret_cast<const unsigned char*>(smscid.c_str());
-						for (int i = 0; i < sizeof(smscid); ++i)
-						{
-							resp.push_back(pcl[i]);
-						}
-						resp.push_back(0x00);
-
-						unsigned char* respData = new unsigned char[resp.size()];
-						memcpy((void*)respData, &resp[0], resp.size());
-						client->Write(respData, resp.size());
-
-						unsigned char* t = respData;
-						int i;
-						memcpy((void*)&i, t, sizeof(i));
-						t += sizeof(i);
-						FILE_LOG(logINFO) << "Response: " << std::setfill('0') << std::setw(2 * sizeof(i)) << std::hex << ntohl(i);
-						delete[] respData;
+                    /*
 					*/
 				}
 

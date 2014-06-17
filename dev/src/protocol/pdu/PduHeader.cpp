@@ -2,12 +2,22 @@
 
 namespace SMPP
 {
+    PduHeader::PduHeader() : PduDataType(),
+    commandLen_("command_len"),
+    commandId_("command_id"),
+    commandStatus_("command_status"),
+    sequenceNum_("sequence_number"),
+    data_()
+    {
+        bzero(&data_[0], HeaderSize);
+    }
+
     PduHeader::PduHeader(const unsigned char* dataBuf) :
     PduDataType(),
-    commandLen_(),
-    commandId_(),
-    commandStatus_(),
-    sequenceNum_(),
+    commandLen_("command_len"),
+    commandId_("command_id"),
+    commandStatus_("command_status"),
+    sequenceNum_("sequence_number"),
     data_()
     {
         try
@@ -36,14 +46,24 @@ namespace SMPP
         sequenceNum_ = SMPP::FourByteInteger(data);
     }
 
-    const SMPP::FourByteInteger& PduHeader::CommandLength() const
+    uint32_t PduHeader::GetCommandLength() const
     {
-        return commandLen_;
+        return commandLen_.Value();
     }
 
-    const SMPP::FourByteInteger& PduHeader::CommandId() const
+    void PduHeader::SetCommandLength(uint32_t len)
     {
-        return commandId_;
+        commandLen_.SetValue(len);
+    }
+
+    uint32_t PduHeader::GetCommandId() const
+    {
+        return commandId_.Value();
+    }
+
+    void PduHeader::SetCommandId(uint32_t value)
+    {
+        commandId_.SetValue(value);
     }
 
     const SMPP::FourByteInteger& PduHeader::CommandStatus() const
@@ -51,9 +71,25 @@ namespace SMPP
         return commandStatus_;
     }
 
-    const SMPP::FourByteInteger& PduHeader::SequenceNumber() const
+    uint32_t PduHeader::GetSequenceNumber() const
     {
-        return sequenceNum_;
+        return sequenceNum_.Value();
+    }
+
+    void PduHeader::SetSequenceNumber(uint32_t val)
+    {
+        sequenceNum_.SetValue(val);
+    }
+
+    void PduHeader::GetFormattedContent(std::string &res) const
+    {
+        std::stringstream s;
+        s << "command_len: 0x" << commandLen_ << " (" << commandLen_.Value() << ")" << std::endl;
+        s << "command_id: 0x" << commandId_ << std::endl;
+        s << "command_status: 0x" << commandStatus_ << std::endl;
+        s << "sequence_number: 0x" << sequenceNum_ << " (" << sequenceNum_.Value() << ")" << std::endl;
+
+        res = s.str();
     }
 
     const unsigned char* PduHeader::Data() const
@@ -76,15 +112,5 @@ namespace SMPP
     size_t PduHeader::Size() const
     {
         return PduHeader::HeaderSize;
-    }
-
-    std::ostream& operator<<(std::ostream& s, const PduHeader& data)
-    {
-        s << "command_length : \t" << "0x" << data.CommandLength() << std::endl;
-        s << "command_id : \t" <<  "0x" << data.CommandId() << std::endl;
-        s << "command_status : \t" << "0x" << data.CommandStatus() << std::endl;
-        s << "sequence_number : \t" << "0x" << data.SequenceNumber() << std::endl;
-
-        return s;
     }
 }

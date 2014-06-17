@@ -2,7 +2,7 @@ protocol_src = ../../../src/protocol
 dataType_src = $(protocol_src)/dataType
 pdu_src = $(protocol_src)/pdu
 test_app = test
-objects = PduHeaderTests.o main.o
+objects = PduHeaderTests.o BindTransmitterTests.o main.o
 
 include $(protocol_src)/SmppLibMakefile
 
@@ -17,10 +17,13 @@ $(test_app): $(SMPPLIB) $(objects)
 
 PduHeaderTests.o: PduHeaderTests.cpp
 
+BindTransmitterTests.o: BindTransmitterTests.cpp
+
 main.o: main.cpp
 
 
 $(SMPPLIB):
+	@-rm -rf $(SMPPLIB)
 	cd $(protocol_src) && $(MAKE)
 	cp $(protocol_src)/$@ .
 

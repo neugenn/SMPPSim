@@ -1,0 +1,11 @@
+src/logging
+src/network
+src/protocol
+src/sdk/lock
+src/sdk/lock/posix
+src/sdk/sharedptr
+src/sdk/threads
+src/sdk/threads/posix
+src/sdk/timer
+test/sdk/smartptr
+test/sdk/timer

@@ -11,6 +11,9 @@ class TwoByteIntegerTests : public CppUnit::TestFixture
     CPPUNIT_TEST(testCreateWithNULLDataBuffer);
     CPPUNIT_TEST(testGetFormattedData);
     CPPUNIT_TEST(testCreateNullInteger);
+    CPPUNIT_TEST(testSetValueData);
+    CPPUNIT_TEST(testSetValueOverflow);
+    CPPUNIT_TEST(testGetValue);
     CPPUNIT_TEST_SUITE_END();
 
     public:
@@ -21,6 +24,9 @@ class TwoByteIntegerTests : public CppUnit::TestFixture
     void testSize();
     void testGetFormattedData();
     void testCreateNullInteger();
+    void testSetValueData();
+    void testSetValueOverflow();
+    void testGetValue();
 
     private:
     SMPP::TwoByteInteger* pInt_;
@@ -42,12 +48,11 @@ void TwoByteIntegerTests::setUp()
 void TwoByteIntegerTests::tearDown()
 {
     delete pInt_;
-    pInt_ = NULL;
 }
 
 void TwoByteIntegerTests::testCreateWithNULLDataBuffer()
 {
-    CPPUNIT_ASSERT_THROW(SMPP::TwoByteInteger(NULL), std::invalid_argument);
+    CPPUNIT_ASSERT_THROW(SMPP::TwoByteInteger(NULL, "test"), std::invalid_argument);
 }
 
 void TwoByteIntegerTests::testSize()
@@ -57,17 +62,36 @@ void TwoByteIntegerTests::testSize()
 
 void TwoByteIntegerTests::testGetFormattedData()
 {
-    std::string r;
-    SMPP::PduDataType::GetFormattedData(pInt_->Data(), pInt_->Size(), r);
-    CPPUNIT_ASSERT_EQUAL(std::string("0102"), r);
+    std::stringstream s;
+    s << *pInt_;
+    CPPUNIT_ASSERT_EQUAL(std::string("0102"), s.str());
 }
 
 void TwoByteIntegerTests::testCreateNullInteger()
 {
     SMPP::TwoByteInteger i;
-    std::string r;
-    SMPP::PduDataType::GetFormattedData(i.Data(), i.Size(), r);
-    CPPUNIT_ASSERT_EQUAL(std::string("0000"), r);
+    std::stringstream s;
+    s << i;
+    CPPUNIT_ASSERT_EQUAL(std::string("0000"), s.str());
+}
+
+void TwoByteIntegerTests::testSetValueData()
+{
+    pInt_->SetValue(0x0102);
+    std::stringstream s;
+    s << *pInt_;
+    CPPUNIT_ASSERT_EQUAL(std::string("0102"), s.str());
+}
+
+void TwoByteIntegerTests::testSetValueOverflow()
+{
+    CPPUNIT_ASSERT_THROW(pInt_->SetValue(0x010203), std::invalid_argument);
+}
+
+void TwoByteIntegerTests::testGetValue()
+{
+    pInt_->SetValue(0x0102);
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0x0102), pInt_->Value());
 }
 
 #endif // TWOBYTEINTEGERTESTS_H_

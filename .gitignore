@@ -18,8 +18,5 @@
 smscsim
 smscsim.exe
 
-#ignore QtCreator files
-SMPPSim*
-
 #ignore test binaries
 #test*

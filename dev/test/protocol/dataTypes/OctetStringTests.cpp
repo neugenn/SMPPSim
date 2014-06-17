@@ -5,6 +5,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+
 using SMPP::OctetString;
 
 class OctetStringTests : public CppUnit::TestFixture
@@ -57,9 +58,9 @@ void OctetStringTests::testCreateWithNULLDataBuffer()
 void OctetStringTests::testNULLOctetString()
 {
     OctetString os;
-    std::string s;
-    SMPP::PduDataType::GetFormattedData(os.Data(), os.Size(), s);
-    CPPUNIT_ASSERT_EQUAL(std::string("00"), s);
+    std::stringstream s;
+    s << os;
+    CPPUNIT_ASSERT_EQUAL(std::string("00"), s.str());
 }
 
 void OctetStringTests::testOperatorEqual()

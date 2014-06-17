@@ -1,7 +1,6 @@
 #ifndef PDUHEADER_H
 #define PDUHEADER_H
 
-#include <ostream>
 #include "Integer.h"
 
 namespace SMPP
@@ -9,15 +8,24 @@ namespace SMPP
     class PduHeader : public PduDataType
     {
     public:
+        PduHeader();
         PduHeader(const unsigned char* dataBuf);
 
         virtual const unsigned char* Data() const;
         virtual size_t Size() const;
 
-        const SMPP::FourByteInteger& CommandLength() const;
-        const SMPP::FourByteInteger& CommandId() const;
+        uint32_t GetCommandLength() const;
+        void SetCommandLength(uint32_t len);
+
+        uint32_t GetCommandId() const;
+        void SetCommandId(uint32_t len);
+
         const SMPP::FourByteInteger& CommandStatus() const;
-        const SMPP::FourByteInteger& SequenceNumber() const;
+
+        uint32_t GetSequenceNumber() const;
+        void SetSequenceNumber(uint32_t value);
+
+        void GetFormattedContent(std::string& res) const;
 
     private:
         static const size_t HeaderSize = 16; //bytes
@@ -30,8 +38,6 @@ namespace SMPP
         SMPP::FourByteInteger sequenceNum_;
         mutable unsigned char data_[HeaderSize];
     };
-
-    std::ostream& operator<<(std::ostream& s, const PduHeader& data);
 }
 
 #endif // PDUHEADER_H
