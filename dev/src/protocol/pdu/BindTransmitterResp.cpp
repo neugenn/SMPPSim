@@ -5,14 +5,18 @@ namespace SMPP
     BindTransmitterResp::BindTransmitterResp() : Pdu(),
     systemId_("system_id")
     {
-        header_.SetCommandId(0x80000002);
+        PduHeader* h = new PduHeader;
+        h->SetCommandId(0x80000002);
+        this->SetHeader(h);
     }
 
     BindTransmitterResp::BindTransmitterResp(const unsigned char* data, size_t len) :
     Pdu(),
     systemId_()
     {
-        header_.SetCommandId(0x80000002);
+        PduHeader* h = new PduHeader(data);
+        h->SetCommandId(0x80000002);
+        this->SetHeader(h);
         systemId_ = CString(data, len, "system_id");
     }
 
@@ -57,6 +61,6 @@ namespace SMPP
 
     void BindTransmitterResp::UpdateCommandLen()
     {
-        header_.SetCommandLength(this->Size());
+        this->GetHeader().SetCommandLength(this->Size());
     }
 }

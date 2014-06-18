@@ -92,7 +92,7 @@ namespace Network
                             FILE_LOG(logINFO) << t;
 
                             SMPP::BindTransmitterResp tr;
-                            SMPP::PduHeader& trh = tr.GetHeader();
+                            PduHeader& trh = tr.GetHeader();
 
                             trh.SetSequenceNumber(t.GetHeader().GetSequenceNumber());
                             tr.SetSystemId("EUGEN");

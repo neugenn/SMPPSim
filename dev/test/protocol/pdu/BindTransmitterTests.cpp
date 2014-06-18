@@ -4,22 +4,74 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "BindTransmitter.h"
 
+class TestingPduHeader : public PduHeader
+{
+public:
+    TestingPduHeader() : PduHeader() {}
+
+    virtual void GetFormattedContent(std::string& res) const
+    {
+        std::stringstream str;
+        str << commandLen_;
+        str << commandId_;
+        str << commandStatus_;
+        str << sequenceNum_;
+
+        res = str.str();
+    }
+};
+
+class TestingBindTransmitter : public SMPP::BindTransmitter
+{
+public:
+    TestingBindTransmitter(PduHeader*& h) : SMPP::BindTransmitter(h)
+    {
+    }
+
+    virtual void GetBodyInfo(std::string& s) const
+    {
+        std::stringstream str;
+        str << systemId_;
+        str << password_;
+        str << systemType_;
+        str << interfaceVersion_;
+        str << addrTon_;
+        str << addrNpi_;
+        str << addressRange_;
+
+        s = str.str();
+    }
+};
+
 class BindTransmitterTests : public CppUnit::TestFixture
 {
-	CPPUNIT_TEST_SUITE(BindTransmitterTests);
-    CPPUNIT_TEST(testCreateWithNULLData);
+    CPPUNIT_TEST_SUITE(BindTransmitterTests);
+    CPPUNIT_TEST(testSystemIdLen);
+    CPPUNIT_TEST(testPasswordLen);
+    CPPUNIT_TEST(testSystemTypeLen);
+    CPPUNIT_TEST(testAddressRangeLen);
+    CPPUNIT_TEST(testCreateEmpty);
     CPPUNIT_TEST(testCommandId);
     CPPUNIT_TEST(testCommandIdFromValidData);
     CPPUNIT_TEST(testCommandIdFromInvalidValidData);
+    CPPUNIT_TEST(testCopyConstructionNoCrash);
+    CPPUNIT_TEST(testAssignmentNoCrash);
     CPPUNIT_TEST_SUITE_END();
 
 	public:
 	virtual void setUp();
-	virtual void tearDown();
+    virtual void tearDown();
+    void testSystemIdLen();
+    void testPasswordLen();
+    void testSystemTypeLen();
+    void testAddressRangeLen();
+    void testCreateEmpty();
     void testCreateWithNULLData();
     void testCommandId();
     void testCommandIdFromValidData();
     void testCommandIdFromInvalidValidData();
+    void testCopyConstructionNoCrash();
+    void testAssignmentNoCrash();
 
     private:
     SMPP::BindTransmitter* pPdu_;
@@ -58,6 +110,35 @@ void BindTransmitterTests::tearDown()
     delete pPdu_;
 }
 
+void BindTransmitterTests::testSystemIdLen()
+{
+    CPPUNIT_ASSERT_EQUAL(size_t(16), SMPP::BindTransmitter::SystemIdMaxLen);
+}
+
+void BindTransmitterTests::testPasswordLen()
+{
+    CPPUNIT_ASSERT_EQUAL(size_t(9), SMPP::BindTransmitter::PasswordMaxLen);
+}
+
+void BindTransmitterTests::testSystemTypeLen()
+{
+    CPPUNIT_ASSERT_EQUAL(size_t(13), SMPP::BindTransmitter::SystemTypeMaxLen);
+}
+
+void BindTransmitterTests::testAddressRangeLen()
+{
+    CPPUNIT_ASSERT_EQUAL(size_t(41), SMPP::BindTransmitter::AddressRangeMaxLen);
+}
+
+void BindTransmitterTests::testCreateEmpty()
+{
+    PduHeader* ph = new TestingPduHeader;
+    TestingBindTransmitter t(ph);
+    std::stringstream s;
+    s << t;
+    CPPUNIT_ASSERT_EQUAL(std::string("0000000000000002000000000000000000000000000000"), s.str());
+}
+
 void BindTransmitterTests::testCreateWithNULLData()
 {
     CPPUNIT_ASSERT_THROW(new SMPP::BindTransmitter(NULL, 10), std::invalid_argument);
@@ -80,6 +161,25 @@ void BindTransmitterTests::testCommandIdFromValidData()
 void BindTransmitterTests::testCommandIdFromInvalidValidData()
 {
     CPPUNIT_ASSERT_THROW(new SMPP::BindTransmitter(&InvalidBindTransmitterData[0], 20), std::invalid_argument);
+}
+
+void BindTransmitterTests::testCopyConstructionNoCrash()
+{
+    {
+        SMPP::BindTransmitter t1;
+        SMPP::BindTransmitter t2(t1);
+    }
+    CPPUNIT_ASSERT(true);
+}
+
+void BindTransmitterTests::testAssignmentNoCrash()
+{
+    {
+        SMPP::BindTransmitter t1;
+        SMPP::BindTransmitter t2;
+        t2 = t1;
+    }
+    CPPUNIT_ASSERT(true);
 }
 
 #endif // BINDTRANSMITTERTESTS_H_

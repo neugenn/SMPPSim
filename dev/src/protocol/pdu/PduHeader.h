@@ -3,41 +3,38 @@
 
 #include "Integer.h"
 
-namespace SMPP
+class PduHeader : public PduDataType
 {
-    class PduHeader : public PduDataType
-    {
-    public:
-        PduHeader();
-        PduHeader(const unsigned char* dataBuf);
+public:
+    PduHeader();
+    PduHeader(const unsigned char* dataBuf);
 
-        virtual const unsigned char* Data() const;
-        virtual size_t Size() const;
+    virtual const unsigned char* Data() const;
+    virtual size_t Size() const;
 
-        uint32_t GetCommandLength() const;
-        void SetCommandLength(uint32_t len);
+    uint32_t GetCommandLength() const;
+    void SetCommandLength(uint32_t len);
 
-        uint32_t GetCommandId() const;
-        void SetCommandId(uint32_t len);
+    uint32_t GetCommandId() const;
+    void SetCommandId(uint32_t len);
 
-        const SMPP::FourByteInteger& CommandStatus() const;
+    const SMPP::FourByteInteger& CommandStatus() const;
 
-        uint32_t GetSequenceNumber() const;
-        void SetSequenceNumber(uint32_t value);
+    uint32_t GetSequenceNumber() const;
+    void SetSequenceNumber(uint32_t value);
 
-        void GetFormattedContent(std::string& res) const;
+    virtual void GetFormattedContent(std::string& res) const;
 
-    private:
-        static const size_t HeaderSize = 16; //bytes
-        void init(const unsigned char* data);
+private:
+    static const size_t HeaderSize = 16; //bytes
+    void init(const unsigned char* data);
 
-    private:
-        SMPP::FourByteInteger commandLen_;
-        SMPP::FourByteInteger commandId_;
-        SMPP::FourByteInteger commandStatus_;
-        SMPP::FourByteInteger sequenceNum_;
-        mutable unsigned char data_[HeaderSize];
-    };
-}
+protected:
+    SMPP::FourByteInteger commandLen_;
+    SMPP::FourByteInteger commandId_;
+    SMPP::FourByteInteger commandStatus_;
+    SMPP::FourByteInteger sequenceNum_;
+    mutable unsigned char data_[HeaderSize];
+};
 
 #endif // PDUHEADER_H

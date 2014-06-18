@@ -2,6 +2,11 @@
 
 namespace SMPP
 {
+    const size_t BindTransmitter::SystemIdMaxLen = 16; //bytes
+    const size_t BindTransmitter::PasswordMaxLen = 9; //bytes
+    const size_t BindTransmitter::SystemTypeMaxLen = 13; //bytes
+    const size_t BindTransmitter::AddressRangeMaxLen = 41; //bytes
+
     BindTransmitter::BindTransmitter() :
     Pdu(),
     systemId_("system_id"),
@@ -13,11 +18,13 @@ namespace SMPP
     addressRange_("address_range"),
     data_(NULL)
     {
-        header_.SetCommandId(0x00000002);
+        PduHeader* ph = new PduHeader();
+        ph->SetCommandId(0x00000002);
+        this->SetHeader(ph);
     }
 
     BindTransmitter::BindTransmitter(const unsigned char* data, size_t len) :
-    Pdu(data),
+    Pdu(),
     systemId_("system_id"),
     password_("password"),
     systemType_("system_type"),
@@ -27,17 +34,23 @@ namespace SMPP
     addressRange_("address_range"),
     data_(NULL)
     {
-        if (0x00000002 != header_.GetCommandId())
-        {
-            throw std::invalid_argument("BindTransmitter() : invalid command id !");
-        }
-
+        PduHeader* ph = NULL;
         try
         {
+            ph = new PduHeader(data);
+            this->SetHeader(ph);
             this->initBody(data, len);
+            if (0x00000002 != this->GetHeader().GetCommandId())
+            {
+                throw std::invalid_argument("BindTransmitter() : invalid command id !");
+            }
         }
         catch (std::exception& e)
         {
+            if (NULL != ph)
+            {
+                delete ph;
+            }
             throw;
         }
     }
@@ -50,29 +63,62 @@ namespace SMPP
         }
     }
 
-    BindTransmitter::BindTransmitter(const BindTransmitter &lsh) :
-    Pdu(lsh.header_),
-    systemId_(lsh.systemId_),
-    password_ (lsh.password_),
-    systemType_ (lsh.systemType_),
-    interfaceVersion_(lsh.interfaceVersion_),
-    addrTon_(lsh.addrTon_),
-    addrNpi_(lsh.addrNpi_),
-    addressRange_(lsh.addressRange_),
+    BindTransmitter::BindTransmitter(PduHeader*& rsh) : Pdu(),
+    systemId_("system_id"),
+    password_("password"),
+    systemType_("system_type"),
+    interfaceVersion_("interface_version"),
+    addrTon_("addr_ton"),
+    addrNpi_("addr_npi"),
+    addressRange_("address_range"),
     data_(NULL)
     {
+        rsh->SetCommandId(0x00000002);
+        this->SetHeader(rsh);
+    }
+
+    BindTransmitter::BindTransmitter(const BindTransmitter &rsh) :
+    Pdu(rsh),
+    systemId_(rsh.systemId_),
+    password_ (rsh.password_),
+    systemType_ (rsh.systemType_),
+    interfaceVersion_(rsh.interfaceVersion_),
+    addrTon_(rsh.addrTon_),
+    addrNpi_(rsh.addrNpi_),
+    addressRange_(rsh.addressRange_),
+    data_(NULL)
+    {
+    }
+
+    BindTransmitter& BindTransmitter::operator =(const BindTransmitter &rsh)
+    {
+        if (this == &rsh)
+        {
+            return *this;
+        }
+
+        Pdu::operator=(rsh);
+        systemId_ = rsh.systemId_;
+        password_ = rsh.password_;
+        systemType_ = rsh.systemType_;
+        interfaceVersion_ = rsh.interfaceVersion_;
+        addrTon_ = rsh.addrTon_;
+        addrNpi_ = rsh.addrNpi_;
+        addressRange_ = rsh.addressRange_;
+
+        return *this;
     }
 
     void BindTransmitter::initBody(const unsigned char *data, size_t len)
     {
        size_t offset = GetHeader().Size();
-       systemId_ = CString(data + offset, SystemIdLen, "system_id");
+       systemId_ = CString(data + offset, SystemIdMaxLen, "system_id");
 
        offset += systemId_.Size();
-       password_ = CString(data + offset, PasswordLen, "password");
+       password_ = CString(data + offset, PasswordMaxLen, "password");
 
        offset += password_.Size();
-       systemType_ = CString(data + offset, SystemTypeLen, "system_type");
+       systemType_ = CString(data + offset, SystemTypeMaxLen, "system_type");
 
        offset += systemType_.Size();
        interfaceVersion_ = OneByteInteger(data + offset, "interface_version");
@@ -84,7 +130,7 @@ namespace SMPP
        addrNpi_ = OneByteInteger(data + offset, "addr_npi");
 
        offset += addrNpi_.Size();
-       addressRange_ = CString(data + offset, AddressRangeLen, "address_range");
+       addressRange_ = CString(data + offset, AddressRangeMaxLen, "address_range");
 
        offset += addressRange_.Size();
        if (offset != len)

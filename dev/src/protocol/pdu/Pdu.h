@@ -5,25 +5,28 @@
 #include "PduHeader.h"
 #include <string>
 
-namespace SMPP
+class Pdu : public PduDataType
 {
-    class Pdu : public PduDataType
-    {
-    public:
-        Pdu();
-        Pdu(const PduHeader& h);
-        Pdu(const unsigned char* data);
-        virtual ~Pdu();
+public:
+    Pdu();
+    Pdu(const Pdu& rsh);
+    Pdu& operator=(const Pdu& rsh);
+    virtual ~Pdu();
 
-        const PduHeader& GetHeader() const;
-        PduHeader& GetHeader();
-        virtual void GetBodyInfo(std::string& s) const;
+    const PduHeader& GetHeader() const;
+    PduHeader& GetHeader();
+    void SetHeader(PduHeader*& h);
 
-    protected:
-        PduHeader header_;
-    };
+    /*!
+     * @brief Prepares the formatted content of the PDU body
+     * @param[out] s The content of the PDU body
+     */
+    virtual void GetBodyInfo(std::string& s) const = 0;
 
-    std::ostream& operator<<(std::ostream& s, const Pdu& pdu);
-}
+private:
+    PduHeader* header_;
+};
+
+std::ostream& operator<<(std::ostream& s, const Pdu& pdu);
 
 #endif // PDU_H

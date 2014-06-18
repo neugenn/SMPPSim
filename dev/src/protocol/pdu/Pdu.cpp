@@ -1,51 +1,62 @@
 #include "Pdu.h"
+#include <cassert>
 
-namespace SMPP
+Pdu::Pdu() : PduDataType(), header_(NULL)
+{}
+
+Pdu::~Pdu()
 {
-    Pdu::Pdu() : PduDataType(), header_()
+    if (NULL != header_)
     {
+        delete header_;
     }
+}
 
-    Pdu::Pdu(const PduHeader& h) : PduDataType(), header_(h)
+Pdu::Pdu(const Pdu &rsh) : header_(new PduHeader(rsh.GetHeader()))
+{}
+
+Pdu& Pdu::operator=(const Pdu& rsh)
+{
+    if (NULL != header_)
     {
-
+        delete header_;
     }
+    header_ = new PduHeader(rsh.GetHeader());
+}
 
-    Pdu::Pdu(const unsigned char *data) : PduDataType(), header_(data)
+const PduHeader& Pdu::GetHeader() const
+{
+    assert(NULL != header_);
+    return *header_;
+}
+
+PduHeader& Pdu::GetHeader()
+{
+    assert(NULL != header_);
+    return *header_;
+}
+
+void Pdu::SetHeader(PduHeader *&h)
+{
+    if (NULL != header_)
     {
+        delete header_;
     }
+    header_ = h;
+    h = NULL;
+}
 
-    Pdu::~Pdu()
-    {}
+std::ostream& operator<<(std::ostream& s, const Pdu& pdu)
+{
+    const PduHeader& h = pdu.GetHeader();
+    std::string header;
+    h.GetFormattedContent(header);
 
-    const PduHeader& Pdu::GetHeader() const
-    {
-        return header_;
-    }
+    std::string body;
+    pdu.GetBodyInfo(body);
 
-    PduHeader& Pdu::GetHeader()
-    {
-        return header_;
-    }
+    s << header;
+    s << body;
 
-    void Pdu::GetBodyInfo(std::string &s) const
-    {
-
-    }
-
-    std::ostream& operator<<(std::ostream& s, const Pdu& pdu)
-    {
-        const PduHeader& h = pdu.GetHeader();
-        std::string header;
-        h.GetFormattedContent(header);
-
-        std::string body;
-        pdu.GetBodyInfo(body);
-
-        s << std::endl;
-        s << header;
-        s << body;
-
-        return s;
-    }
+    return s;
 }
