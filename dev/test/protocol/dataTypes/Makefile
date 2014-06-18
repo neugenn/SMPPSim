@@ -1,7 +1,7 @@
 protocol_src = ../../../src/protocol
 dataType_src = $(protocol_src)/dataType
 test_app = test
-objects =  OneByteIntegerTests.o TwoByteIntegerTests.o OctetStringTests.o \
+objects =  OneByteIntegerTests.o TwoByteIntegerTests.o FourByteIntegerTests.o OctetStringTests.o \
 	COctetStringTests.o AsciiValidationTests.o DecimalValidationTests.o HexValidationTests.o main.o
 
 include $(protocol_src)/SmppLibMakefile
@@ -19,6 +19,8 @@ $(test_app): $(SMPPLIB) $(objects)
 OneByteIntegerTests.o: OneByteIntegerTests.cpp
 
 TwoByteIntegerTests.o: TwoByteIntegerTests.cpp
+
+FourByteIntegerTests.o: FourByteIntegerTests.cpp
 
 OctetStringTests.o: OctetStringTests.cpp
 

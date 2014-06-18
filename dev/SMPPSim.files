@@ -99,3 +99,4 @@ src/protocol/pdu/Pdu.h
 src/protocol/pdu/Pdu.cpp
 src/protocol/pdu/BindTransmitterResp.h
 src/protocol/pdu/BindTransmitterResp.cpp
+test/protocol/dataTypes/FourByteIntegerTests.cpp

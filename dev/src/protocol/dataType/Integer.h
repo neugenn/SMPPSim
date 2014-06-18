@@ -14,10 +14,12 @@ namespace SMPP
     class Integer : public PduDataType
     {
     public:
+        typedef uint64_t value_t;
+
         /*!
          * @brief The maximum value which can be hold by an Integer object
          */
-        static uint32_t MaxValue();
+        static value_t MaxValue();
 
          /*!
          * @brief Creates an Integer object which is zero filled
@@ -46,15 +48,15 @@ namespace SMPP
 
         /*!
          * @brief Set the value of the integer object
-         * @throw std::invalid_argument if the value exceeds the maximum allowed
+         * @throw std::invalid_argument The value exceeds the maximum allowed
          * @see MaxValue
          */
-        void SetValue(uint32_t val);
+        void SetValue(value_t val);
 
         /*!
          * @brief The value of the Integer object
          */
-        uint32_t Value() const;
+        value_t Value() const;
 
     private:
         unsigned char data_[sizeof(T)];

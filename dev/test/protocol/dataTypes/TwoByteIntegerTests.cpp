@@ -8,25 +8,29 @@ class TwoByteIntegerTests : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE(TwoByteIntegerTests);
     CPPUNIT_TEST(testSize);
-    CPPUNIT_TEST(testCreateWithNULLDataBuffer);
-    CPPUNIT_TEST(testGetFormattedData);
-    CPPUNIT_TEST(testCreateNullInteger);
+    CPPUNIT_TEST(testInitialData);
+    CPPUNIT_TEST(testCreateNullIntegerValue);
+    CPPUNIT_TEST(testCreateNullIntegerData);
+    CPPUNIT_TEST(testCreateWithNullDataBuffer);
+    CPPUNIT_TEST(testSetValue);
     CPPUNIT_TEST(testSetValueData);
     CPPUNIT_TEST(testSetValueOverflow);
-    CPPUNIT_TEST(testGetValue);
+    CPPUNIT_TEST(testMaxSize);
     CPPUNIT_TEST_SUITE_END();
 
     public:
     virtual void setUp();
     virtual void tearDown();
 
-    void testCreateWithNULLDataBuffer();
+    void testCreateWithNullDataBuffer();
     void testSize();
-    void testGetFormattedData();
-    void testCreateNullInteger();
+    void testInitialData();
+    void testCreateNullIntegerValue();
+    void testCreateNullIntegerData();
+    void testSetValue();
     void testSetValueData();
     void testSetValueOverflow();
-    void testGetValue();
+    void testMaxSize();
 
     private:
     SMPP::TwoByteInteger* pInt_;
@@ -35,7 +39,7 @@ class TwoByteIntegerTests : public CppUnit::TestFixture
     static const unsigned char DataBuffer[3];
 };
 
-const unsigned char TwoByteIntegerTests::DataBuffer[3] = { 0x01u, 0x02u, 0x03u };
+const unsigned char TwoByteIntegerTests::DataBuffer[3] = { 0x01, 0x02, 0x03 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TwoByteIntegerTests);
 
@@ -50,7 +54,7 @@ void TwoByteIntegerTests::tearDown()
     delete pInt_;
 }
 
-void TwoByteIntegerTests::testCreateWithNULLDataBuffer()
+void TwoByteIntegerTests::testCreateWithNullDataBuffer()
 {
     CPPUNIT_ASSERT_THROW(SMPP::TwoByteInteger(NULL, "test"), std::invalid_argument);
 }
@@ -60,19 +64,31 @@ void TwoByteIntegerTests::testSize()
     CPPUNIT_ASSERT_EQUAL(size_t(2), pInt_->Size());
 }
 
-void TwoByteIntegerTests::testGetFormattedData()
+void TwoByteIntegerTests::testInitialData()
 {
     std::stringstream s;
     s << *pInt_;
     CPPUNIT_ASSERT_EQUAL(std::string("0102"), s.str());
 }
 
-void TwoByteIntegerTests::testCreateNullInteger()
+void TwoByteIntegerTests::testCreateNullIntegerValue()
+{
+    SMPP::TwoByteInteger i;
+    CPPUNIT_ASSERT_EQUAL(SMPP::TwoByteInteger::value_t(0), i.Value());
+}
+
+void TwoByteIntegerTests::testCreateNullIntegerData()
 {
     SMPP::TwoByteInteger i;
     std::stringstream s;
     s << i;
     CPPUNIT_ASSERT_EQUAL(std::string("0000"), s.str());
+}
+
+void TwoByteIntegerTests::testSetValue()
+{
+    pInt_->SetValue(0x0102);
+    CPPUNIT_ASSERT_EQUAL(SMPP::TwoByteInteger::value_t(0x0102), pInt_->Value());
 }
 
 void TwoByteIntegerTests::testSetValueData()
@@ -88,10 +104,9 @@ void TwoByteIntegerTests::testSetValueOverflow()
     CPPUNIT_ASSERT_THROW(pInt_->SetValue(0x010203), std::invalid_argument);
 }
 
-void TwoByteIntegerTests::testGetValue()
+void TwoByteIntegerTests::testMaxSize()
 {
-    pInt_->SetValue(0x0102);
-    CPPUNIT_ASSERT_EQUAL(uint32_t(0x0102), pInt_->Value());
+    CPPUNIT_ASSERT_EQUAL(SMPP::TwoByteInteger::value_t(0xFFFF), SMPP::TwoByteInteger::MaxValue());
 }
 
 #endif // TWOBYTEINTEGERTESTS_H_

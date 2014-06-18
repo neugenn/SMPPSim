@@ -23,7 +23,7 @@ namespace SMPP
     }
 
     template <typename T>
-    uint32_t Integer<T>::MaxValue()
+    typename Integer<T>::value_t Integer<T>::MaxValue()
     {
         return std::numeric_limits<T>::max();
     }
@@ -62,21 +62,21 @@ namespace SMPP
     }
 
     template <typename T>
-    void Integer<T>::SetValue(uint32_t val)
+    void Integer<T>::SetValue(value_t val)
     {
         const T theValue = T(val);
-        if (uint32_t(theValue) < val)
+        if (value_t(theValue) < val)
         {
             throw std::invalid_argument(Name() + "Value too big !");
         }
 
         const T newVal =  SwapBytes<T>(theValue);
         const unsigned char* buf = reinterpret_cast<const unsigned char*>(&newVal);
-        memcpy(&data_[0], buf, sizeof(T));
+        memcpy(&data_[0], buf, sizeof(newVal));
     }
 
     template <typename T>
-    uint32_t Integer<T>::Value() const
+    typename Integer<T>::value_t Integer<T>::Value() const
     {
         T val = T(0);
         const unsigned char* buf = reinterpret_cast<const unsigned char*>(&data_[0]);

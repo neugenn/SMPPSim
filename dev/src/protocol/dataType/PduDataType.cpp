@@ -23,7 +23,7 @@ namespace SMPP
         const unsigned char* buf = data.Data();
         for (size_t i = 0; i < data.Size(); ++i)
         {
-            s << std::setfill('0') << std::setw(2) << std::hex;
+            s << std::setfill('0') << std::setw(2) << std::uppercase << std::hex;
             s << static_cast<unsigned int>(buf[i]);
         }
         return s;
