@@ -33,17 +33,17 @@ namespace SMPP
         static const size_t AddressRangeMaxLen;
 
         /*!
-         * @brief Creates an empty BindTransmitter
+         * @brief Creates an empty BindTransmitter object
          */
         BindTransmitter();
 
         /*!
          * @brief Creates a BindTransmitter object from a stream of bytes
          * @param[in] data Host byte order data buffer
-         * @param[in] len The length of the data buffer
-         * @throw std::invalid_argument The data buffer is NULL or the command_id portion from the data buffer is not ok
+         * @throw std::invalid_argument The data buffer is NULL or the data buffer does not encode a valid BIND_TRANSMITER pdu
          */
-        BindTransmitter(const unsigned char* data, size_t len);
+        BindTransmitter(const unsigned char* data);
+
         ~BindTransmitter();
 
         BindTransmitter(const BindTransmitter& rsh);
@@ -54,6 +54,10 @@ namespace SMPP
          * @param[out] s The content of the BIND_TRANSMITTER_PDU body
          */
         virtual void GetBodyInfo(std::string &s) const;
+
+        virtual size_t MinSize() const;
+
+        virtual size_t MaxSize() const;
 
         /*!
          * @brief Data The data in host byte order
@@ -69,9 +73,9 @@ namespace SMPP
         BindTransmitter(PduHeader*& h);
 
     private:
-        void initBody(const unsigned char* data, size_t len);
+        void initBody(const unsigned char* data);
 
-    protected:
+    private:
         CString systemId_;
         CString password_;
         CString systemType_;

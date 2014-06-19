@@ -21,7 +21,9 @@ Pdu& Pdu::operator=(const Pdu& rsh)
     {
         delete header_;
     }
+
     header_ = new PduHeader(rsh.GetHeader());
+    return *this;
 }
 
 const PduHeader& Pdu::GetHeader() const
@@ -30,10 +32,22 @@ const PduHeader& Pdu::GetHeader() const
     return *header_;
 }
 
-PduHeader& Pdu::GetHeader()
+void Pdu::SetSequenceNumber(uint32_t value)
 {
     assert(NULL != header_);
-    return *header_;
+    header_->SetSequenceNumber(value);
+}
+
+void Pdu::SetCommandStatus(uint32_t status)
+{
+    assert(NULL != header_);
+    header_->SetCommandStatus(status);
+}
+
+void Pdu::UpdateCommandLength()
+{
+    assert(NULL != header_);
+    header_->SetCommandLength(this->Size());
 }
 
 void Pdu::SetHeader(PduHeader *&h)

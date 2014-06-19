@@ -7,6 +7,10 @@ namespace SMPP
     const size_t BindTransmitter::SystemTypeMaxLen = 13; //bytes
     const size_t BindTransmitter::AddressRangeMaxLen = 41; //bytes
 
+    static const size_t MIN_SIZE = PduHeader::HeaderSize + 4 * CString().Size() + 3 * OneByteInteger().Size();
+    static const size_t MAX_SIZE = PduHeader::HeaderSize + BindTransmitter::SystemIdMaxLen + BindTransmitter::PasswordMaxLen + \
+            BindTransmitter::SystemTypeMaxLen + BindTransmitter::AddressRangeMaxLen + 3 * OneByteInteger().Size();
+
     BindTransmitter::BindTransmitter() :
     Pdu(),
     systemId_("system_id"),
@@ -20,10 +24,11 @@ namespace SMPP
     {
         PduHeader* ph = new PduHeader();
         ph->SetCommandId(0x00000002);
+//        ph->SetCommandLength(MIN_SIZE);
         this->SetHeader(ph);
     }
 
-    BindTransmitter::BindTransmitter(const unsigned char* data, size_t len) :
+    BindTransmitter::BindTransmitter(const unsigned char* data) :
     Pdu(),
     systemId_("system_id"),
     password_("password"),
@@ -34,15 +39,21 @@ namespace SMPP
     addressRange_("address_range"),
     data_(NULL)
     {
+        uint32_t commandLen = 0;
         PduHeader* ph = NULL;
         try
         {
             ph = new PduHeader(data);
+            commandLen = ph->GetCommandLength();
+
             this->SetHeader(ph);
-            this->initBody(data, len);
+            this->initBody(data);
             if (0x00000002 != this->GetHeader().GetCommandId())
             {
-                throw std::invalid_argument("BindTransmitter() : invalid command id !");
+                std::stringstream s;
+                s << __PRETTY_FUNCTION__;
+                s << " : invalid command_id(" << std::hex << GetHeader().GetCommandId();
+                throw std::invalid_argument(s.str());
             }
         }
         catch (std::exception& e)
@@ -51,7 +62,26 @@ namespace SMPP
             {
                 delete ph;
             }
-            throw;
+
+            std::stringstream s;
+            s << __PRETTY_FUNCTION__ << std::endl << e.what();
+            throw std::invalid_argument(s.str());
+        }
+
+        if (commandLen < MIN_SIZE)
+        {
+            std::stringstream s;
+            s << __PRETTY_FUNCTION__ << " : command_length(" << commandLen;
+            s << ") smaller than minimum allowed PDU length(" << MIN_SIZE <<") !";
+            throw std::invalid_argument(s.str());
+        }
+
+        if (commandLen > MAX_SIZE)
+        {
+            std::stringstream s;
+            s << __PRETTY_FUNCTION__ << " : command_length(" << commandLen;
+            s << ") greater than maximum allowed PDU length(" << MAX_SIZE <<") !";
+            throw std::invalid_argument(s.str());
         }
     }
 
@@ -74,6 +104,7 @@ namespace SMPP
     data_(NULL)
     {
         rsh->SetCommandId(0x00000002);
+        rsh->SetCommandLength(MIN_SIZE);
         this->SetHeader(rsh);
     }
 
@@ -109,7 +140,7 @@ namespace SMPP
         return *this;
     }
 
-    void BindTransmitter::initBody(const unsigned char *data, size_t len)
+    void BindTransmitter::initBody(const unsigned char *data)
     {
        size_t offset = GetHeader().Size();
        systemId_ = CString(data + offset, SystemIdMaxLen, "system_id");
@@ -131,12 +162,6 @@ namespace SMPP
 
        offset += addrNpi_.Size();
        addressRange_ = CString(data + offset, AddressRangeMaxLen, "address_range");
-
-       offset += addressRange_.Size();
-       if (offset != len)
-       {
-//           throw std::invalid_argument("FOO");
-       }
     }
 
     void BindTransmitter::GetBodyInfo(std::string &s) const
@@ -153,6 +178,16 @@ namespace SMPP
         s = str.str();
     }
 
+    size_t BindTransmitter::MinSize() const
+    {
+        return MIN_SIZE;
+    }
+
+    size_t BindTransmitter::MaxSize() const
+    {
+        return MAX_SIZE;
+    }
+
     unsigned const char* BindTransmitter::Data() const
     {
         const size_t size = this->Size();
@@ -164,12 +199,29 @@ namespace SMPP
         unsigned char* buf = new unsigned char[size];
         const PduHeader& h = GetHeader();
 
-        size_t offset  = 0;
         memcpy(buf, h.Data(), h.Size());
-        offset += h.Size();
+        size_t offset = h.Size();
 
         memcpy(buf + offset, systemId_.Data(), systemId_.Size());
-        offset += h.Size();
+        offset += systemId_.Size();
+
+        memcpy(buf + offset, password_.Data(), password_.Size());
+        offset += password_.Size();
+
+        memcpy(buf + offset, systemType_.Data(), systemType_.Size());
+        offset += systemType_.Size();
+
+        memcpy(buf + offset, interfaceVersion_.Data(), interfaceVersion_.Size());
+        offset += interfaceVersion_.Size();
+
+        memcpy(buf + offset, addrTon_.Data(), addrTon_.Size());
+        offset += addrTon_.Size();
+
+        memcpy(buf + offset, addrNpi_.Data(), addrNpi_.Size());
+        offset += addrNpi_.Size();
+
+        memcpy(buf + offset, addressRange_.Data(), addressRange_.Size());
+        offset += addressRange_.Size();
 
         data_ = buf;
         return data_;

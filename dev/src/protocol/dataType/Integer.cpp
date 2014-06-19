@@ -33,7 +33,10 @@ namespace SMPP
     {
         if (NULL == data)
         {
-            throw std::invalid_argument(Name() + " NULL not allowed !");
+            std::stringstream s;
+            s << __PRETTY_FUNCTION__ << " " << Name();
+            s << " : NULL data buffer !";
+            throw std::invalid_argument(s.str());
         }
 
         bzero(&data_[0], sizeof(T));
@@ -67,7 +70,10 @@ namespace SMPP
         const T theValue = T(val);
         if (value_t(theValue) < val)
         {
-            throw std::invalid_argument(Name() + "Value too big !");
+            std::stringstream s;
+            s << __PRETTY_FUNCTION__ << " " << Name();
+            s << " : value(" << val << ") bigger than the maximum allowed value(" << MaxValue() << ")";
+            throw std::invalid_argument(s.str());
         }
 
         const T newVal =  SwapBytes<T>(theValue);

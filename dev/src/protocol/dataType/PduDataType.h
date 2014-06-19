@@ -17,8 +17,8 @@ public:
     virtual ~PduDataType() {}
 
     /*!
-     * \brief Name
-     * \return
+     * @brief Name
+     * @return
      */
     const std::string& Name() const;
 

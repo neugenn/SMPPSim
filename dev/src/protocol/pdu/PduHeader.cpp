@@ -64,9 +64,14 @@ void PduHeader::SetCommandId(uint32_t value)
     commandId_.SetValue(value);
 }
 
-const SMPP::FourByteInteger& PduHeader::CommandStatus() const
+const SMPP::FourByteInteger& PduHeader::GetCommandStatus() const
 {
     return commandStatus_;
+}
+
+void PduHeader::SetCommandStatus(uint32_t status)
+{
+    commandStatus_.SetValue(status);
 }
 
 uint32_t PduHeader::GetSequenceNumber() const

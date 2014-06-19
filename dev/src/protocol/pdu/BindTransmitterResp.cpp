@@ -2,26 +2,78 @@
 
 namespace SMPP
 {
-    BindTransmitterResp::BindTransmitterResp() : Pdu(),
-    systemId_("system_id")
+    const size_t BindTransmitterResp::SystemIdMaxLen = 16; //bytes
+    const size_t MIN_SIZE = PduHeader().Size() + CString().Size();
+
+    BindTransmitterResp::BindTransmitterResp() :
+    Pdu(),
+    systemId_("system_id"),
+    data_(NULL)
     {
-        PduHeader* h = new PduHeader;
-        h->SetCommandId(0x80000002);
-        this->SetHeader(h);
+        PduHeader* ph = new PduHeader;
+        ph->SetCommandId(0x80000002);
+        ph->SetCommandLength(MIN_SIZE);
+        this->SetHeader(ph);
+        ph = NULL;
     }
 
-    BindTransmitterResp::BindTransmitterResp(const unsigned char* data, size_t len) :
+    BindTransmitterResp::BindTransmitterResp(const unsigned char* data) :
     Pdu(),
-    systemId_()
+    systemId_("system_id"),
+    data_(NULL)
     {
-        PduHeader* h = new PduHeader(data);
-        h->SetCommandId(0x80000002);
-        this->SetHeader(h);
-        systemId_ = CString(data, len, "system_id");
+        PduHeader* ph = NULL;
+        try
+        {
+            ph = new PduHeader(data);
+            ph->SetCommandId(0x80000002);
+            ph->SetCommandLength(this->MinSize());
+            this->SetHeader(ph);
+            ph = NULL;
+
+            systemId_ = CString(data + this->GetHeader().Size(), SystemIdMaxLen, "system_id");
+        }
+        catch (std::exception& e)
+        {
+            if (NULL != ph)
+            {
+                delete ph;
+            }
+
+            std::stringstream s;
+            s << __PRETTY_FUNCTION__ << " " << e.what();
+            throw std::invalid_argument(s.str());
+        }
+    }
+
+    BindTransmitterResp::BindTransmitterResp(const BindTransmitterResp& rsh) :
+    Pdu(rsh),
+    systemId_(rsh.systemId_),
+    data_(NULL)
+    {
+    }
+
+    BindTransmitterResp& BindTransmitterResp::operator=(const BindTransmitterResp& rsh)
+    {
+        if (this == &rsh)
+        {
+            return *this;
+        }
+
+        Pdu::operator =(rsh);
+        systemId_ = rsh.systemId_;
+        data_ = NULL;
+
+        return *this;
     }
 
     BindTransmitterResp::~BindTransmitterResp()
-    {}
+    {
+       if (NULL != data_)
+       {
+           delete [] data_;
+       }
+    }
 
     void BindTransmitterResp::GetBodyInfo(std::string &s) const
     {
@@ -30,15 +82,31 @@ namespace SMPP
         s = str.str();
     }
 
+    size_t BindTransmitterResp::MinSize() const
+    {
+        return MIN_SIZE;
+    }
+
+    size_t BindTransmitterResp::MaxSize() const
+    {
+        return this->GetHeader().Size() + SystemIdMaxLen;
+    }
+
     const unsigned char* BindTransmitterResp::Data() const
     {
+        if (NULL != data_)
+        {
+            delete [] data_;
+        }
+
         const size_t size = Size();
-        unsigned char* data = new unsigned char[size];
+        unsigned char* buf = new unsigned char[size];
 
-        memcpy(data, GetHeader().Data(), GetHeader().Size());
-        memcpy(data + GetHeader().Size(), systemId_.Data(), systemId_.Size());
+        memcpy(buf, GetHeader().Data(), GetHeader().Size());
+        memcpy(buf + GetHeader().Size(), systemId_.Data(), systemId_.Size());
 
-        return data;
+        data_ = buf;
+        return data_;
     }
 
     size_t BindTransmitterResp::Size() const
@@ -50,17 +118,17 @@ namespace SMPP
     void BindTransmitterResp::SetSystemId(const std::string &id)
     {
         std::string s(id);
-        if (s.size() > SystemIdLen)
+        if (s.size() > SystemIdMaxLen)
         {
-            s = std::string(id.c_str(), SystemIdLen);
+            s = std::string(id.c_str(), SystemIdMaxLen);
         }
 
         systemId_.SetValue(s);
-        this->UpdateCommandLen();
+        this->UpdateCommandLength();
     }
 
-    void BindTransmitterResp::UpdateCommandLen()
+    const std::string& BindTransmitterResp::GetSystemId() const
     {
-        this->GetHeader().SetCommandLength(this->Size());
+        return systemId_.Value();
     }
 }

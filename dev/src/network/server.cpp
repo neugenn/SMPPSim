@@ -8,6 +8,8 @@
 #include "sessionmanager.h"
 #include "BindTransmitter.h"
 #include "BindTransmitterResp.h"
+#include "EnquireLink.h"
+#include "EnquireLinkRes.h"
 #include <string>
 #include <iomanip>
 #include <vector>
@@ -63,57 +65,72 @@ namespace Network
                     /*
                     */
                     unsigned char lenbuf[4];
-                    client->Read(&lenbuf[0], 4);
-                    SMPP::FourByteInteger dataLen(&lenbuf[0]);
-
-                    FILE_LOG(logINFO) << "Data len: " << dataLen.Value();
-
-                    unsigned char* data = new unsigned char[dataLen.Value()];
-                    memcpy(data, &lenbuf[0], 4);
-                    ssize_t count = client->Read(data + 4, dataLen.Value() - 4);
-                    FILE_LOG(logINFO) << "Read " << count << " bytes !";
-
-                    std::stringstream ss;
-                    for (size_t i = 0; i < count + 4; ++i)
+                    while (client->Read(&lenbuf[0], 4))
                     {
-                        ss << std::setfill('0') << std::setw(2) << std::hex << int(data[i]);
-                    }
-                    FILE_LOG(logINFO) << "Bytes received: " << ss.str();
+                        SMPP::FourByteInteger dataLen(&lenbuf[0]);
 
-                    int tmp = 0;
-                    memcpy((void*)&tmp, data + 4, sizeof(tmp));
-                    FILE_LOG(logINFO) << "Command ID: " << std::setfill('0') << std::setw(2 * sizeof(tmp)) << std::hex << ntohl(tmp);
-                    if (0x00000002 == ntohl(tmp))
-                    {
-                        FILE_LOG(logINFO) << "BindTransmitter message received !";
-                        try
+                        FILE_LOG(logINFO) << "Data len: " << dataLen.Value();
+
+                        unsigned char* data = new unsigned char[dataLen.Value()];
+                        memcpy(data, &lenbuf[0], 4);
+                        ssize_t count = client->Read(data + 4, dataLen.Value() - 4);
+                        FILE_LOG(logINFO) << "Read " << count << " bytes !";
+
+                        std::stringstream ss;
+                        for (size_t i = 0; i < count + 4; ++i)
                         {
-                            SMPP::BindTransmitter t(data, dataLen.Value());
-                            FILE_LOG(logINFO) << t;
+                            ss << std::setfill('0') << std::setw(2) << std::hex << int(data[i]);
+                        }
+                        FILE_LOG(logINFO) << "Bytes received: " << ss.str();
 
-                            SMPP::BindTransmitterResp tr;
-                            PduHeader& trh = tr.GetHeader();
-
-                            trh.SetSequenceNumber(t.GetHeader().GetSequenceNumber());
-                            tr.SetSystemId("EUGEN");
-
-                            FILE_LOG(logINFO) << tr;
-
-                            const unsigned char* toSend = tr.Data();
-                            std::stringstream ss;
-                            for (size_t i = 0; i < tr.Size(); ++i)
+                        int tmp = 0;
+                        memcpy((void*)&tmp, data + 4, sizeof(tmp));
+                        FILE_LOG(logINFO) << "Command ID: " << std::setfill('0') << std::setw(2 * sizeof(tmp)) << std::hex << ntohl(tmp);
+                        if (0x00000002 == ntohl(tmp))
+                        {
+                            FILE_LOG(logINFO) << "BindTransmitter message received !";
+                            try
                             {
-                                ss << std::setfill('0') << std::setw(2) << std::hex << int(toSend[i]);
-                            }
-                            FILE_LOG(logINFO) << "Bytes to send: " << ss.str();
+                                SMPP::BindTransmitter t(data);
+                                FILE_LOG(logINFO) << t;
 
-                            ssize_t count = client->Write(toSend, tr.Size());
-                            FILE_LOG(logINFO) << "Sent: " << count;
+                                SMPP::BindTransmitterResp tr;
+                                FILE_LOG(logINFO) << tr;
+                                tr.SetSequenceNumber(t.GetHeader().GetSequenceNumber());
+                                tr.SetSystemId(std::string("EUGEN"));
+
+                                FILE_LOG(logINFO) << tr;
+
+                                const unsigned char* toSend = tr.Data();
+                                std::stringstream ss;
+                                for (size_t i = 0; i < tr.Size(); ++i)
+                                {
+                                    ss << std::setfill('0') << std::setw(2) << std::hex << int(toSend[i]);
+                                }
+                                FILE_LOG(logINFO) << "Bytes to send: " << ss.str();
+
+                                ssize_t count = client->Write(toSend, tr.Size());
+                                FILE_LOG(logINFO) << "Sent: " << count;
+                            }
+                            catch (std::exception& e)
+                            {
+                                FILE_LOG(logINFO) << "Exception !" << e.what();
+                            }
                         }
-                        catch (std::exception& e)
+
+                        if (0x00000015 == ntohl(tmp))
                         {
-                            FILE_LOG(logINFO) << "Exception !" << e.what();
+                            FILE_LOG(logINFO) << "EnquireLink message received !";
+                            SMPP::EnquireLink el(data);
+                            FILE_LOG(logINFO) << el;
+
+                            SMPP::EnquireLinkRes elr(data);
+                            FILE_LOG(logINFO) << elr;
+
+                            client->Write(elr.Data(), elr.Size());
                         }
+
+                        delete [] data;
                     }
 
                     /*

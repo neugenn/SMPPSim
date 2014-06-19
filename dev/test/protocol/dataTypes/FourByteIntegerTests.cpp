@@ -9,6 +9,7 @@ class FourByteIntegerTests : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE(FourByteIntegerTests);
     CPPUNIT_TEST(testSize);
     CPPUNIT_TEST(testInitialData);
+    CPPUNIT_TEST(testInitialValue);
     CPPUNIT_TEST(testCreateNullIntegerValue);
     CPPUNIT_TEST(testCreateNullIntegerData);
     CPPUNIT_TEST(testCreateWithNullDataBuffer);
@@ -25,6 +26,7 @@ class FourByteIntegerTests : public CppUnit::TestFixture
     void testCreateWithNullDataBuffer();
     void testSize();
     void testInitialData();
+    void testInitialValue();
     void testCreateNullIntegerValue();
     void testCreateNullIntegerData();
     void testSetValue();
@@ -39,7 +41,7 @@ class FourByteIntegerTests : public CppUnit::TestFixture
     static const unsigned char DataBuffer[5];
 };
 
-const unsigned char FourByteIntegerTests::DataBuffer[5] = { 0x01, 0x02, 0x03 , 0x04, 0x05};
+const unsigned char FourByteIntegerTests::DataBuffer[5] = { 0x00, 0x00, 0x00 , 0x20, 0x05};
 
 CPPUNIT_TEST_SUITE_REGISTRATION(FourByteIntegerTests);
 
@@ -68,7 +70,12 @@ void FourByteIntegerTests::testInitialData()
 {
     std::stringstream s;
     s << *pInt_;
-    CPPUNIT_ASSERT_EQUAL(std::string("01020304"), s.str());
+    CPPUNIT_ASSERT_EQUAL(std::string("00000020"), s.str());
+}
+
+void FourByteIntegerTests::testInitialValue()
+{
+    CPPUNIT_ASSERT_EQUAL(uint64_t(32), pInt_->Value());
 }
 
 void FourByteIntegerTests::testCreateNullIntegerValue()

@@ -6,6 +6,8 @@
 class PduHeader : public PduDataType
 {
 public:
+    static const size_t HeaderSize = 16; //bytes
+
     PduHeader();
     PduHeader(const unsigned char* dataBuf);
 
@@ -18,7 +20,8 @@ public:
     uint32_t GetCommandId() const;
     void SetCommandId(uint32_t len);
 
-    const SMPP::FourByteInteger& CommandStatus() const;
+    const SMPP::FourByteInteger& GetCommandStatus() const;
+    void SetCommandStatus(uint32_t status);
 
     uint32_t GetSequenceNumber() const;
     void SetSequenceNumber(uint32_t value);
@@ -26,10 +29,9 @@ public:
     virtual void GetFormattedContent(std::string& res) const;
 
 private:
-    static const size_t HeaderSize = 16; //bytes
     void init(const unsigned char* data);
 
-protected:
+private:
     SMPP::FourByteInteger commandLen_;
     SMPP::FourByteInteger commandId_;
     SMPP::FourByteInteger commandStatus_;

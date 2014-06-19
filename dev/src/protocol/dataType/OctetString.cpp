@@ -40,7 +40,10 @@ namespace SMPP
     {
         if (NULL == data)
         {
-            throw std::invalid_argument(Name() + "NULL data buffer !");
+            std::stringstream s;
+            s << __PRETTY_FUNCTION__ << " " << this->Name();
+            s << " : NULL data buffer !";
+            throw std::invalid_argument(s.str());
         }
 
         data_ = new unsigned char[maxSize_];

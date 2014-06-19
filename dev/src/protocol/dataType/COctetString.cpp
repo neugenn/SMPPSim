@@ -1,4 +1,5 @@
 #include "COctetString.h"
+#include <iomanip>
 
 namespace SMPP
 {
@@ -18,7 +19,10 @@ namespace SMPP
     {
         if (NULL == data)
         {
-            throw std::invalid_argument(Name() + "COctetString() : NULL data buffer");
+            std::stringstream s;
+            s << __PRETTY_FUNCTION__ << " " << this->Name();
+            s << " : NULL data buffer !";
+            throw std::invalid_argument(s.str());
         }
 
         const char* asciidata = reinterpret_cast<const char*>(data);
@@ -31,8 +35,13 @@ namespace SMPP
         if (!validator_.IsValid(this->Data(), this->Size()))
         {
             std::stringstream ss;
-            ss << Name() + "COctetString() : Invalid data ! " << data_;
-            ss << "Len: " << len;
+            ss << __PRETTY_FUNCTION__ << " " << this->Name();
+            ss << " : Invalid ASCII data ! (";
+            for (size_t i = 0; i < data_.size(); ++i)
+            {
+                ss << std::setfill('0') << std::setw(2) << std::uppercase << std::hex << static_cast<int>(data_[i]);
+            }
+            ss << ") len: " << data_.size();
             throw std::invalid_argument(ss.str());
         }
     }

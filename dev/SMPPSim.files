@@ -100,3 +100,7 @@ src/protocol/pdu/Pdu.cpp
 src/protocol/pdu/BindTransmitterResp.h
 src/protocol/pdu/BindTransmitterResp.cpp
 test/protocol/dataTypes/FourByteIntegerTests.cpp
+src/protocol/pdu/EnquireLink.h
+src/protocol/pdu/EnquireLink.cpp
+src/protocol/pdu/EnquireLinkRes.cpp
+src/protocol/pdu/EnquireLinkRes.h

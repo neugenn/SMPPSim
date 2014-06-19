@@ -14,14 +14,28 @@ public:
     virtual ~Pdu();
 
     const PduHeader& GetHeader() const;
-    PduHeader& GetHeader();
-    void SetHeader(PduHeader*& h);
+    void SetSequenceNumber(uint32_t value);
+    void SetCommandStatus(uint32_t status);
 
     /*!
      * @brief Prepares the formatted content of the PDU body
      * @param[out] s The content of the PDU body
      */
-    virtual void GetBodyInfo(std::string& s) const = 0;
+    virtual void GetBodyInfo(std::string& s) const {}
+
+    /*!
+     * @brief The minimum size of the PDU
+     */
+    virtual size_t MinSize() const = 0;
+
+    /*!
+     * @brief The maximum size of the PDU
+     */
+    virtual size_t MaxSize() const = 0;
+
+protected:
+    void SetHeader(PduHeader*& h);
+    void UpdateCommandLength();
 
 private:
     PduHeader* header_;
