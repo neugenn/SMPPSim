@@ -31,6 +31,7 @@ namespace SMPP
 
         virtual const unsigned char* Data() const;
         virtual size_t Size() const;
+        virtual bool IsValid();
 
     private:
         unsigned char* data_;

@@ -64,4 +64,9 @@ namespace SMPP
     {
         return maxSize_;
     }
+
+    bool OctetString::IsValid()
+    {
+        return true;
+    }
 }

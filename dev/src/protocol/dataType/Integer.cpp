@@ -65,6 +65,12 @@ namespace SMPP
     }
 
     template <typename T>
+    bool Integer<T>::IsValid()
+    {
+        return true;
+    }
+
+    template <typename T>
     void Integer<T>::SetValue(value_t val)
     {
         const T theValue = T(val);

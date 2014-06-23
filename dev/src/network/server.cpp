@@ -5,7 +5,6 @@
 #include "hostaddress.h"
 #include "logger.h"
 #include "session.h"
-#include "sessionmanager.h"
 #include "BindTransmitter.h"
 #include "BindTransmitterResp.h"
 #include "EnquireLink.h"
@@ -43,7 +42,6 @@ namespace Network
 					return false;
 				}
 
-				SMPP::SessionManager m;
 				bool tmo = false;
 				for(;;)
 				{
@@ -57,13 +55,17 @@ namespace Network
 					}
 
 					Network::TcpSocket* client = s.NextPendingConnection();
-					if (NULL == client)
+                    if (NULL == client)
 					{
-						FILE_LOG(logERROR) << "Cannot connect with the SMPP client !";
-					}
+                        FILE_LOG(logERROR) << "Cannot connect with the SMPP client !";
+                        continue;
+                    }
+
+                    SMPP::Session s(client);
+                    client = NULL;
+                    FILE_LOG(logINFO) << s;
 
                     /*
-                    */
                     unsigned char lenbuf[4];
                     while (client->Read(&lenbuf[0], 4))
                     {
@@ -132,8 +134,6 @@ namespace Network
 
                         delete [] data;
                     }
-
-                    /*
 					*/
 				}
 

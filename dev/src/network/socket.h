@@ -21,8 +21,8 @@ namespace Network
 			bool Listen(const HostAddress& a);
 			bool Connect(const HostAddress& a);
 			void Close();
-			bool GetSockName(HostAddress* a);
-			bool GetPeerName(HostAddress* a);
+            bool GetSockName(HostAddress* a) const;
+            bool GetPeerName(HostAddress* a) const;
 			int GetDescriptor() const;
 			bool IsValid() const;
 

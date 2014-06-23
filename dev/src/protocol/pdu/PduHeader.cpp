@@ -91,6 +91,7 @@ void PduHeader::GetFormattedContent(std::string &res) const
     s << "command_id: 0x" << commandId_ << std::endl;
     s << "command_status: 0x" << commandStatus_ << std::endl;
     s << "sequence_number: 0x" << sequenceNum_ << " (" << sequenceNum_.Value() << ")" << std::endl;
+    s << std::endl;
 
     res = s.str();
 }
@@ -115,4 +116,9 @@ const unsigned char* PduHeader::Data() const
 size_t PduHeader::Size() const
 {
     return PduHeader::HeaderSize;
+}
+
+bool PduHeader::IsValid()
+{
+    return ( commandLen_.IsValid() && commandId_.IsValid() && commandStatus_.IsValid() && sequenceNum_.IsValid() );
 }

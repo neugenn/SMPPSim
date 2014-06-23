@@ -8,11 +8,21 @@ class PduHeader : public PduDataType
 public:
     static const size_t HeaderSize = 16; //bytes
 
+    /*!
+     * \brief Creates an empty PduHeader object
+     */
     PduHeader();
+
+    /*!
+     * \brief Creates a PduHeader object from a stream of bytes
+     * \param[in] dataBuf The data buffer
+     * \throw std::invalid_argument The data buffer is NULL
+     */
     PduHeader(const unsigned char* dataBuf);
 
     virtual const unsigned char* Data() const;
     virtual size_t Size() const;
+    virtual bool IsValid();
 
     uint32_t GetCommandLength() const;
     void SetCommandLength(uint32_t len);
@@ -26,7 +36,7 @@ public:
     uint32_t GetSequenceNumber() const;
     void SetSequenceNumber(uint32_t value);
 
-    virtual void GetFormattedContent(std::string& res) const;
+    void GetFormattedContent(std::string& res) const;
 
 private:
     void init(const unsigned char* data);

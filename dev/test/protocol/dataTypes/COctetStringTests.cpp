@@ -32,7 +32,8 @@ public:
 class COctetStringTests : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE(COctetStringTests);
-    CPPUNIT_TEST(testCreateWithValidationFailure);
+    CPPUNIT_TEST(testValidityWithValidationFailure);
+    CPPUNIT_TEST(testValidityWithValidationOk);
     CPPUNIT_TEST(testCreateWithNULLDataBuffer);
     CPPUNIT_TEST(testCreateWithSpecificSize);
     CPPUNIT_TEST(testEmptyStringSize);
@@ -44,7 +45,8 @@ class COctetStringTests : public CppUnit::TestFixture
     public:
     virtual void setUp();
     virtual void tearDown();
-    void testCreateWithValidationFailure();
+    void testValidityWithValidationFailure();
+    void testValidityWithValidationOk();
     void testCreateWithNULLDataBuffer();
     void testCreateWithSpecificSize();
     void testEmptyStringSize();
@@ -74,9 +76,16 @@ void COctetStringTests::tearDown()
     delete pString_;
 }
 
-void COctetStringTests::testCreateWithValidationFailure()
+void COctetStringTests::testValidityWithValidationFailure()
 {
-    CPPUNIT_ASSERT_THROW(new TestingCOctetString<false>(&COctetStringTests::AsciiData[0], 5), std::invalid_argument);
+    TestingCOctetString<false> s(&COctetStringTests::AsciiData[0], 5);
+    CPPUNIT_ASSERT_EQUAL(false, s.IsValid());
+}
+
+void COctetStringTests::testValidityWithValidationOk()
+{
+    TestingCOctetString<true> s(&COctetStringTests::AsciiData[0], 5);
+    CPPUNIT_ASSERT_EQUAL(true, s.IsValid());
 }
 
 void COctetStringTests::testCreateWithNULLDataBuffer()

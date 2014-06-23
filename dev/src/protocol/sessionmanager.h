@@ -6,7 +6,7 @@
 
 namespace SMPP
 {
-	class SmppSession;
+    class Session;
 
 	class SessionManager
 	{
@@ -18,7 +18,7 @@ namespace SMPP
 			{}
 
 		public:
-			void Add(SmppSession*& s)
+            void Add(Session*& s)
 			{
 				assert(NULL != s);
 
@@ -27,7 +27,7 @@ namespace SMPP
 			}
 
 		private:
-			std::vector<SmppSession*> sessions_;
+            std::vector<Session*> sessions_;
 	};
 }
 

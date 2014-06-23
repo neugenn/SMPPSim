@@ -186,7 +186,7 @@ namespace Network
 		impl_->lqs_ = v;
 	}
 
-	bool TcpSocket::GetSockName(HostAddress* a)
+    bool TcpSocket::GetSockName(HostAddress* a) const
 	{
 		bool r = false;
 		do
@@ -221,7 +221,7 @@ namespace Network
 		return r;
 	}
 
-	bool TcpSocket::GetPeerName(HostAddress* a)
+    bool TcpSocket::GetPeerName(HostAddress* a) const
 	{
 		bool r = false;
 		do

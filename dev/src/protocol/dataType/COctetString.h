@@ -24,8 +24,7 @@ namespace SMPP
          * @brief COctetString Creates a string object from a raw data buffer
          * @param[in] data The data buffer
          * @param[in] len The length of the buffer (including the NULL terminating character)
-         * @throw std::invalid_argument The data buffer is NULL of the data is invalid
-         * @see Validation strategy
+         * @throw std::invalid_argument The data buffer is NULL
          */
         COctetString(const unsigned char* data, size_t len, const char* name = "");
 
@@ -33,6 +32,7 @@ namespace SMPP
 
         virtual const unsigned char* Data() const;
         virtual size_t Size() const;
+        virtual bool IsValid();
         const std::string& Value() const;
         void SetValue(std::string& value);
 

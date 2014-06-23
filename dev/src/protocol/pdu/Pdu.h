@@ -4,13 +4,22 @@
 #include "PduDataType.h"
 #include "PduHeader.h"
 #include <string>
+#include <vector>
 
 class Pdu : public PduDataType
 {
 public:
+    /*!
+     * \brief Creates an empty Pdu object
+     */
     Pdu();
-    Pdu(const Pdu& rsh);
-    Pdu& operator=(const Pdu& rsh);
+
+    /*!
+     * \brief Creates a Pdu object from a stream of bytes
+     * \param data
+     * \throw std::invalid_argument The data buffer is NULL
+     */
+    Pdu(const unsigned char* data);
     virtual ~Pdu();
 
     const PduHeader& GetHeader() const;
@@ -21,7 +30,7 @@ public:
      * @brief Prepares the formatted content of the PDU body
      * @param[out] s The content of the PDU body
      */
-    virtual void GetBodyInfo(std::string& s) const {}
+    virtual void GetFormattedContent(std::string& s) const;
 
     /*!
      * @brief The minimum size of the PDU
@@ -33,12 +42,15 @@ public:
      */
     virtual size_t MaxSize() const = 0;
 
-protected:
-    void SetHeader(PduHeader*& h);
-    void UpdateCommandLength();
+    virtual bool IsValid();
 
-private:
-    PduHeader* header_;
+protected:
+    void SetHeader(const PduHeader& h);
+    void UpdateCommandLength();
+    void GetBodyElements(std::vector<PduDataType*>& elements);
+
+protected:
+    PduHeader header_;
 };
 
 std::ostream& operator<<(std::ostream& s, const Pdu& pdu);

@@ -10,36 +10,22 @@ namespace SMPP
     systemId_("system_id"),
     data_(NULL)
     {
-        PduHeader* ph = new PduHeader;
-        ph->SetCommandId(0x80000002);
-        ph->SetCommandLength(MIN_SIZE);
-        this->SetHeader(ph);
-        ph = NULL;
+        header_.SetCommandId(0x80000002);
+        header_.SetCommandLength(MIN_SIZE);
     }
 
     BindTransmitterResp::BindTransmitterResp(const unsigned char* data) :
-    Pdu(),
+    Pdu(data),
     systemId_("system_id"),
     data_(NULL)
     {
-        PduHeader* ph = NULL;
         try
         {
-            ph = new PduHeader(data);
-            ph->SetCommandId(0x80000002);
-            ph->SetCommandLength(this->MinSize());
-            this->SetHeader(ph);
-            ph = NULL;
-
+            header_.SetCommandLength(this->MinSize());
             systemId_ = CString(data + this->GetHeader().Size(), SystemIdMaxLen, "system_id");
         }
         catch (std::exception& e)
         {
-            if (NULL != ph)
-            {
-                delete ph;
-            }
-
             std::stringstream s;
             s << __PRETTY_FUNCTION__ << " " << e.what();
             throw std::invalid_argument(s.str());
@@ -75,9 +61,12 @@ namespace SMPP
        }
     }
 
-    void BindTransmitterResp::GetBodyInfo(std::string &s) const
+    void BindTransmitterResp::GetFormattedContent(std::string &s) const
     {
+        s.clear();
+        Pdu::GetFormattedContent(s);
         std::stringstream str;
+        str << s;
         str << "system_id: " << systemId_ << " (" << systemId_.Value() << ")" << std::endl;
         s = str.str();
     }
@@ -130,5 +119,11 @@ namespace SMPP
     const std::string& BindTransmitterResp::GetSystemId() const
     {
         return systemId_.Value();
+    }
+
+    void BindTransmitterResp::GetBodyElements(std::vector<PduDataType *> &elements)
+    {
+        elements.clear();
+        elements.push_back(&systemId_);
     }
 }

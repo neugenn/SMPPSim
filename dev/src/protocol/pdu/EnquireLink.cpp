@@ -3,21 +3,8 @@
 namespace SMPP
 {
     EnquireLink::EnquireLink(const unsigned char* data) :
-    Pdu()
+    Pdu(data)
     {
-        PduHeader* ph = NULL;
-        try
-        {
-            ph = new PduHeader(data);
-            this->SetHeader(ph);
-            ph = NULL;
-        }
-        catch (std::exception& e)
-        {
-            std::stringstream s;
-            s << __PRETTY_FUNCTION__ << e.what();
-            throw std::invalid_argument(s.str());
-        }
     }
 
     const unsigned char* EnquireLink::Data() const

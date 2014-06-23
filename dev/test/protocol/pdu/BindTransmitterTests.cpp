@@ -5,50 +5,24 @@
 #include <iomanip>
 #include "BindTransmitter.h"
 
-class TestingPduHeader : public PduHeader
-{
-public:
-    TestingPduHeader() : PduHeader() {}
-
-    virtual void GetFormattedContent(std::string& res) const
-    {
-        const unsigned char* data = this->Data();
-        std::stringstream str;
-        for (size_t i = 0; i < this->Size(); ++i)
-        {
-            str << std::setfill('0') << std::setw(2) << std::uppercase << std::hex;
-            str << static_cast<unsigned int>(data[i]);
-        }
-        res = str.str();
-    }
-};
-
 class TestingBindTransmitter : public SMPP::BindTransmitter
 {
 public:
-    TestingBindTransmitter(PduHeader*& h) : SMPP::BindTransmitter(h)
+    TestingBindTransmitter() : SMPP::BindTransmitter()
     {}
 
-    virtual void GetBodyInfo(std::string& s) const
+    virtual void GetFormattedContent(std::string& s) const
     {
         const size_t pduSize = this->Size();
         unsigned char* pdu = new unsigned char[pduSize];
         memcpy(pdu, this->Data(), pduSize);
 
-        const PduHeader& h = this->GetHeader();
-        const size_t headerSize = h.Size();
-
-        const size_t bodySize = pduSize - headerSize;
-        unsigned char* body = new unsigned char[bodySize];
-        memcpy(body, pdu + headerSize, bodySize);
-
         std::stringstream str;
-        for (size_t i = 0; i < bodySize; ++i)
+        for (size_t i = 0; i < pduSize; ++i)
         {
             str << std::setfill('0') << std::setw(2) << std::uppercase << std::hex;
-            str << static_cast<unsigned int>(body[i]);
+            str << static_cast<unsigned int>(pdu[i]);
         }
-        delete [] body;
         delete [] pdu;
 
         s = str.str();
@@ -164,9 +138,7 @@ void BindTransmitterTests::testMaxPduSize()
 
 void BindTransmitterTests::testCreateEmpty()
 {
-    PduHeader* ph = new TestingPduHeader;
-    TestingBindTransmitter t(ph);
-    ph = NULL;
+    TestingBindTransmitter t;
 
     std::stringstream s;
     s << t;

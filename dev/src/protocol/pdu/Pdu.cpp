@@ -1,76 +1,98 @@
 #include "Pdu.h"
 #include <cassert>
 
-Pdu::Pdu() : PduDataType(), header_(NULL)
+Pdu::Pdu() : PduDataType(), header_()
+{}
+
+Pdu::Pdu(const unsigned char *data) : header_(data)
 {}
 
 Pdu::~Pdu()
 {
-    if (NULL != header_)
-    {
-        delete header_;
-    }
 }
 
-Pdu::Pdu(const Pdu &rsh) : header_(new PduHeader(rsh.GetHeader()))
+/*
+Pdu::Pdu(const Pdu &rsh) : header_(rsh.GetHeader())
 {}
 
 Pdu& Pdu::operator=(const Pdu& rsh)
 {
-    if (NULL != header_)
+    if (this == &rsh)
     {
-        delete header_;
+        return *this;
     }
 
-    header_ = new PduHeader(rsh.GetHeader());
+    header_ = PduHeader(rsh.GetHeader());
     return *this;
 }
+*/
 
 const PduHeader& Pdu::GetHeader() const
 {
-    assert(NULL != header_);
-    return *header_;
+    return header_;
 }
 
 void Pdu::SetSequenceNumber(uint32_t value)
 {
-    assert(NULL != header_);
-    header_->SetSequenceNumber(value);
+    header_.SetSequenceNumber(value);
 }
 
 void Pdu::SetCommandStatus(uint32_t status)
 {
-    assert(NULL != header_);
-    header_->SetCommandStatus(status);
+    header_.SetCommandStatus(status);
 }
 
 void Pdu::UpdateCommandLength()
 {
-    assert(NULL != header_);
-    header_->SetCommandLength(this->Size());
+    header_.SetCommandLength(this->Size());
 }
 
-void Pdu::SetHeader(PduHeader *&h)
+void Pdu::SetHeader(const PduHeader& h)
 {
-    if (NULL != header_)
-    {
-        delete header_;
-    }
     header_ = h;
-    h = NULL;
+}
+
+bool Pdu::IsValid()
+{
+    if (!header_.IsValid())
+    {
+        return false;
+    }
+
+    std::vector<PduDataType*> elements_;
+    this->GetBodyElements(elements_);
+
+    std::vector<PduDataType*>::const_iterator it = elements_.begin();
+    std::vector<PduDataType*>::const_iterator itEnd = elements_.end();
+    bool res = true;
+    for (; it != itEnd; ++it)
+    {
+        if (!(*it)->IsValid())
+        {
+            res = false;
+            break;
+        }
+    }
+
+    return res;
+}
+
+void Pdu::GetFormattedContent(std::string& s) const
+{
+    header_.GetFormattedContent(s);
+}
+
+void Pdu::GetBodyElements(std::vector<PduDataType *>& /*elements*/)
+{
+
 }
 
 std::ostream& operator<<(std::ostream& s, const Pdu& pdu)
 {
-    const PduHeader& h = pdu.GetHeader();
-    std::string header;
-    h.GetFormattedContent(header);
+    std::string data;
+    pdu.GetFormattedContent(data);
 
-    std::string body;
-    pdu.GetBodyInfo(body);
-
-    s << header;
-    s << body;
+    s << data;
 
     return s;
 }

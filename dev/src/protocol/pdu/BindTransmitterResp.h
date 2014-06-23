@@ -33,7 +33,7 @@ namespace SMPP
         BindTransmitterResp(const BindTransmitterResp& rsh);
         BindTransmitterResp& operator=(const BindTransmitterResp& rsh);
 
-        virtual void GetBodyInfo(std::string &s) const;
+        virtual void GetFormattedContent(std::string &s) const;
         virtual size_t MinSize() const;
         virtual size_t MaxSize() const;
 
@@ -42,6 +42,9 @@ namespace SMPP
 
         void SetSystemId(const std::string& id);
         const std::string& GetSystemId() const;
+
+    protected:
+        void GetBodyElements(std::vector<PduDataType *> &elements);
 
     private:
         CString systemId_;

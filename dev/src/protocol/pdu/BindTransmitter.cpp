@@ -22,14 +22,12 @@ namespace SMPP
     addressRange_("address_range"),
     data_(NULL)
     {
-        PduHeader* ph = new PduHeader();
-        ph->SetCommandId(0x00000002);
-//        ph->SetCommandLength(MIN_SIZE);
-        this->SetHeader(ph);
+        header_.SetCommandId(0x00000002);
+        header_.SetCommandLength(MIN_SIZE);
     }
 
     BindTransmitter::BindTransmitter(const unsigned char* data) :
-    Pdu(),
+    Pdu(data),
     systemId_("system_id"),
     password_("password"),
     systemType_("system_type"),
@@ -39,16 +37,11 @@ namespace SMPP
     addressRange_("address_range"),
     data_(NULL)
     {
-        uint32_t commandLen = 0;
-        PduHeader* ph = NULL;
+        const uint32_t commandLen = header_.GetCommandLength();
         try
         {
-            ph = new PduHeader(data);
-            commandLen = ph->GetCommandLength();
-
-            this->SetHeader(ph);
             this->initBody(data);
-            if (0x00000002 != this->GetHeader().GetCommandId())
+            if (0x00000002 != header_.GetCommandId())
             {
                 std::stringstream s;
                 s << __PRETTY_FUNCTION__;
@@ -58,11 +51,6 @@ namespace SMPP
         }
         catch (std::exception& e)
         {
-            if (NULL != ph)
-            {
-                delete ph;
-            }
-
             std::stringstream s;
             s << __PRETTY_FUNCTION__ << std::endl << e.what();
             throw std::invalid_argument(s.str());
@@ -93,7 +81,7 @@ namespace SMPP
         }
     }
 
-    BindTransmitter::BindTransmitter(PduHeader*& rsh) : Pdu(),
+    BindTransmitter::BindTransmitter(const PduHeader& rsh) : Pdu(),
     systemId_("system_id"),
     password_("password"),
     systemType_("system_type"),
@@ -103,9 +91,8 @@ namespace SMPP
     addressRange_("address_range"),
     data_(NULL)
     {
-        rsh->SetCommandId(0x00000002);
-        rsh->SetCommandLength(MIN_SIZE);
         this->SetHeader(rsh);
+        header_.SetCommandLength(MIN_SIZE);
     }
 
     BindTransmitter::BindTransmitter(const BindTransmitter &rsh) :
@@ -164,9 +151,13 @@ namespace SMPP
        addressRange_ = CString(data + offset, AddressRangeMaxLen, "address_range");
     }
 
-    void BindTransmitter::GetBodyInfo(std::string &s) const
+    void BindTransmitter::GetFormattedContent(std::string &s) const
     {
+        s.clear();
+        Pdu::GetFormattedContent(s);
+
         std::stringstream str;
+        str << s;
         str << "system_id: " << systemId_ << " (" << systemId_.Value() << ")" << std::endl;
         str << "password: " << password_ << " (" << password_.Value() << ")" << std::endl;
         str << "system_type: " << systemType_ << " (" << systemType_.Value() << ")" << std::endl;
@@ -233,5 +224,17 @@ namespace SMPP
                 + interfaceVersion_.Size() + addrTon_.Size() + addrNpi_.Size() + addressRange_.Size();
 
         return size;
+    }
+
+    void BindTransmitter::GetBodyElements(std::vector<PduDataType *> &elements)
+    {
+        elements.clear();
+        elements.push_back(&systemId_);
+        elements.push_back(&password_);
+        elements.push_back(&systemType_);
+        elements.push_back(&interfaceVersion_);
+        elements.push_back(&addrTon_);
+        elements.push_back(&addrNpi_);
+        elements.push_back(&addressRange_);
     }
 }

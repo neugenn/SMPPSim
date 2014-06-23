@@ -27,11 +27,12 @@ namespace SMPP
 
         const char* asciidata = reinterpret_cast<const char*>(data);
         data_ = std::string(asciidata);
-        if (data_.size() > len)
+        if (data_.size() >= len)
         {
             data_ = std::string(asciidata, len - 1);
         }
 
+        /*
         if (!validator_.IsValid(this->Data(), this->Size()))
         {
             std::stringstream ss;
@@ -44,6 +45,7 @@ namespace SMPP
             ss << ") len: " << data_.size();
             throw std::invalid_argument(ss.str());
         }
+        */
     }
 
     template <typename T>
@@ -60,6 +62,12 @@ namespace SMPP
     size_t COctetString<T>::Size() const
     {
         return data_.size() + 1;
+    }
+
+    template <typename T>
+    bool COctetString<T>::IsValid()
+    {
+        return (validator_.IsValid(this->Data(), this->Size()));
     }
 
     template <typename T>

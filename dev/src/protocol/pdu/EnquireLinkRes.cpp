@@ -2,19 +2,8 @@
 
 namespace SMPP
 {
-    EnquireLinkRes::EnquireLinkRes(const unsigned char* data) : Pdu()
+    EnquireLinkRes::EnquireLinkRes(const unsigned char* data) : Pdu(data)
     {
-        PduHeader* ph = NULL;
-        try
-        {
-            ph = new PduHeader(data);
-            ph->SetCommandId(0x80000015);
-            this->SetHeader(ph);
-        }
-        catch (std::exception& e)
-        {
-            throw;
-        }
     }
 
     const unsigned char* EnquireLinkRes::Data() const
