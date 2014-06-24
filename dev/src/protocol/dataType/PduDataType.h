@@ -32,7 +32,7 @@ public:
      */
     virtual size_t Size() const = 0;
 
-    virtual bool IsValid() = 0;
+    virtual bool IsValid() const = 0;
 
 private:
     std::string name_;

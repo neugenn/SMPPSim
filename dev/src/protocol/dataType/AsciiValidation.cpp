@@ -9,7 +9,7 @@ namespace SMPP
     AsciiValidation::~AsciiValidation()
     {}
 
-    bool AsciiValidation::IsValid(const unsigned char* data, size_t size)
+    bool AsciiValidation::IsValid(const unsigned char* data, size_t size) const
     {
         assert(NULL != data);
 

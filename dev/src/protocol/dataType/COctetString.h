@@ -26,13 +26,13 @@ namespace SMPP
          * @param[in] len The length of the buffer (including the NULL terminating character)
          * @throw std::invalid_argument The data buffer is NULL
          */
-        COctetString(const unsigned char* data, size_t len, const char* name = "");
+        COctetString(const unsigned char*& data, size_t len, const char* name = "");
 
         ~COctetString();
 
         virtual const unsigned char* Data() const;
         virtual size_t Size() const;
-        virtual bool IsValid();
+        virtual bool IsValid() const;
         const std::string& Value() const;
         void SetValue(std::string& value);
 

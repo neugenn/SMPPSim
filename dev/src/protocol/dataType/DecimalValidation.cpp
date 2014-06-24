@@ -13,7 +13,7 @@ namespace SMPP
         return ( (val >= 0x30) && (val <= 0x39) );
     }
 
-    bool DecimalValidation::IsValid(const unsigned char *data, size_t size)
+    bool DecimalValidation::IsValid(const unsigned char *data, size_t size) const
     {
         bool res = AsciiValidation::IsValid(data, size);
 

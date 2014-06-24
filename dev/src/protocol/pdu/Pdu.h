@@ -9,6 +9,9 @@
 class Pdu : public PduDataType
 {
 public:
+
+    static SMPP::FourByteInteger::value_t MaxSequenceNumber();
+
     /*!
      * \brief Creates an empty Pdu object
      */
@@ -22,13 +25,24 @@ public:
     Pdu(const unsigned char* data);
     virtual ~Pdu();
 
-    const PduHeader& GetHeader() const;
-    void SetSequenceNumber(uint32_t value);
-    void SetCommandStatus(uint32_t status);
+    SMPP::FourByteInteger::value_t CommandLength() const;
+    SMPP::CommandId CommandId() const;
+
+    SMPP::CommandStatus CommandStatus() const;
+    void SetCommandStatus(SMPP::CommandStatus status);
+
+    SMPP::FourByteInteger::value_t SequenceNumber() const;
 
     /*!
-     * @brief Prepares the formatted content of the PDU body
-     * @param[out] s The content of the PDU body
+     * \brief SetSequenceNumber
+     * \param value
+     * \throw std::invalid_argument The value exeeds the maximum allowed value
+     */
+    void SetSequenceNumber(SMPP::FourByteInteger::value_t value);
+
+    /*!
+     * @brief Prepares the formatted content of the PDU
+     * @param[out] s The content of the PDU
      */
     virtual void GetFormattedContent(std::string& s) const;
 
@@ -42,12 +56,15 @@ public:
      */
     virtual size_t MaxSize() const = 0;
 
-    virtual bool IsValid();
+    virtual bool IsValid() const;
 
 protected:
     void SetHeader(const PduHeader& h);
     void UpdateCommandLength();
-    void GetBodyElements(std::vector<PduDataType*>& elements);
+
+private:
+    virtual void GetBodyElements(std::vector<PduDataType*>& elements) const;
+    bool IsValidBody() const;
 
 protected:
     PduHeader header_;

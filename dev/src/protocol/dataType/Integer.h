@@ -31,7 +31,7 @@ namespace SMPP
          * @param data Big Endian data buffer used as the value of the Integer object
          * @throw std::invalid_argument Data buffer is NULL
          */
-        Integer(const unsigned char* data, const char* name = "");
+        Integer(const unsigned char*& data, const char* name = "");
 
        ~Integer();
 
@@ -46,7 +46,7 @@ namespace SMPP
          */
         virtual size_t Size() const;
 
-        virtual bool IsValid();
+        virtual bool IsValid() const;
 
         /*!
          * @brief Set the value of the integer object

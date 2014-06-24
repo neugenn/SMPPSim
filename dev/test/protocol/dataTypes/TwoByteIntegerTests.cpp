@@ -45,7 +45,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TwoByteIntegerTests);
 
 void TwoByteIntegerTests::setUp()
 {
-    pInt_ = new SMPP::TwoByteInteger(DataBuffer);
+    const unsigned char* r = &DataBuffer[0];
+    pInt_ = new SMPP::TwoByteInteger(r);
     CPPUNIT_ASSERT(NULL != pInt_);
 }
 
@@ -56,7 +57,8 @@ void TwoByteIntegerTests::tearDown()
 
 void TwoByteIntegerTests::testCreateWithNullDataBuffer()
 {
-    CPPUNIT_ASSERT_THROW(SMPP::TwoByteInteger(NULL, "test"), std::invalid_argument);
+    const unsigned char* r = NULL;
+    CPPUNIT_ASSERT_THROW(SMPP::TwoByteInteger(r, "test"), std::invalid_argument);
 }
 
 void TwoByteIntegerTests::testSize()

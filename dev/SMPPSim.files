@@ -104,3 +104,5 @@ src/protocol/pdu/EnquireLink.h
 src/protocol/pdu/EnquireLink.cpp
 src/protocol/pdu/EnquireLinkRes.cpp
 src/protocol/pdu/EnquireLinkRes.h
+src/protocol/pdu/CommandId.h
+src/protocol/pdu/CommandStatus.h

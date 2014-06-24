@@ -1,6 +1,11 @@
 #include "Pdu.h"
 #include <cassert>
 
+SMPP::FourByteInteger::value_t Pdu::MaxSequenceNumber()
+{
+    return 0x7FFFFFFF;
+}
+
 Pdu::Pdu() : PduDataType(), header_()
 {}
 
@@ -11,35 +16,39 @@ Pdu::~Pdu()
 {
 }
 
-/*
-Pdu::Pdu(const Pdu &rsh) : header_(rsh.GetHeader())
-{}
-
-Pdu& Pdu::operator=(const Pdu& rsh)
+SMPP::FourByteInteger::value_t Pdu::CommandLength() const
 {
-    if (this == &rsh)
+    return header_.CommandLength();
+}
+
+SMPP::CommandId Pdu::CommandId() const
+{
+    return header_.CommandId();
+}
+
+SMPP::CommandStatus Pdu::CommandStatus() const
+{
+    return header_.CommandStatus();
+}
+
+void Pdu::SetCommandStatus(SMPP::CommandStatus status)
+{
+    return header_.SetCommandStatus(status);
+}
+
+SMPP::FourByteInteger::value_t Pdu::SequenceNumber() const
+{
+    return header_.SequenceNumber();
+}
+
+void Pdu::SetSequenceNumber(SMPP::FourByteInteger::value_t value)
+{
+    if (value > Pdu::MaxSequenceNumber())
     {
-        return *this;
+        throw std::invalid_argument("Sequence number overflow !");
     }
 
-    header_ = PduHeader(rsh.GetHeader());
-    return *this;
-}
-*/
-
-const PduHeader& Pdu::GetHeader() const
-{
-    return header_;
-}
-
-void Pdu::SetSequenceNumber(uint32_t value)
-{
     header_.SetSequenceNumber(value);
-}
-
-void Pdu::SetCommandStatus(uint32_t status)
-{
-    header_.SetCommandStatus(status);
 }
 
 void Pdu::UpdateCommandLength()
@@ -52,13 +61,45 @@ void Pdu::SetHeader(const PduHeader& h)
     header_ = h;
 }
 
-bool Pdu::IsValid()
+bool Pdu::IsValid() const
 {
-    if (!header_.IsValid())
+    bool res = false;
+    do
     {
-        return false;
-    }
+        if (!header_.IsValid())
+        {
+            break;
+        }
 
+        const size_t pduSize = this->Size();
+        if (pduSize < this->MinSize())
+        {
+            break;
+        }
+
+        if (pduSize > this->MaxSize())
+        {
+            break;
+        }
+
+        res = this->IsValidBody();
+    }
+    while (false);
+    return res;
+}
+
+void Pdu::GetFormattedContent(std::string& s) const
+{
+    header_.GetFormattedContent(s);
+}
+
+void Pdu::GetBodyElements(std::vector<PduDataType *>& /*elements*/) const
+{
+
+}
+
+bool Pdu::IsValidBody() const
+{
     std::vector<PduDataType*> elements_;
     this->GetBodyElements(elements_);
 
@@ -73,18 +114,6 @@ bool Pdu::IsValid()
             break;
         }
     }
-
-    return res;
-}
-
-void Pdu::GetFormattedContent(std::string& s) const
-{
-    header_.GetFormattedContent(s);
-}
-
-void Pdu::GetBodyElements(std::vector<PduDataType *>& /*elements*/)
-{
-
 }
 
 std::ostream& operator<<(std::ostream& s, const Pdu& pdu)

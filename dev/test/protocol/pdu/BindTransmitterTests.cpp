@@ -101,7 +101,7 @@ void BindTransmitterTests::setUp()
 
 void BindTransmitterTests::tearDown()
 {
-    delete pPdu_;
+//    delete pPdu_;
 }
 
 void BindTransmitterTests::testSystemIdLen()
@@ -153,15 +153,13 @@ void BindTransmitterTests::testCreateWithNullData()
 void BindTransmitterTests::testCommandId()
 {
     SMPP::BindTransmitter t;
-    const uint32_t id = t.GetHeader().GetCommandId();
-    CPPUNIT_ASSERT_EQUAL(uint32_t(0x00000002), id);
+    CPPUNIT_ASSERT_EQUAL(SMPP::BIND_TRANSMITTER, t.CommandId());
 }
 
 void BindTransmitterTests::testCommandIdFromValidData()
 {
     SMPP::BindTransmitter t(&ValidBindTransmitterData[0]);
-    const uint32_t id = t.GetHeader().GetCommandId();
-    CPPUNIT_ASSERT_EQUAL(uint32_t(0x00000002), id);
+    CPPUNIT_ASSERT_EQUAL(SMPP::BIND_TRANSMITTER, t.CommandId());
 }
 
 void BindTransmitterTests::testCreateWithInvalidCommandId()
@@ -230,8 +228,8 @@ void BindTransmitterTests::testCopyConstructionNoCrash()
         SMPP::BindTransmitter t1;
         SMPP::BindTransmitter t2(t1);
 
-        t1.GetHeader();
-        t2.GetHeader();
+        t1.CommandId();
+        t2.CommandId();
     }
     CPPUNIT_ASSERT(true);
 }
@@ -243,8 +241,8 @@ void BindTransmitterTests::testAssignmentNoCrash()
         SMPP::BindTransmitter t2;
         t2 = t1;
 
-        t1.GetHeader();
-        t2.GetHeader();
+        t1.CommandId();
+        t2.CommandId();
     }
     CPPUNIT_ASSERT(true);
 }

@@ -47,7 +47,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(FourByteIntegerTests);
 
 void FourByteIntegerTests::setUp()
 {
-    pInt_ = new SMPP::FourByteInteger(DataBuffer);
+    const unsigned char* r = &DataBuffer[0];
+    pInt_ = new SMPP::FourByteInteger(r);
     CPPUNIT_ASSERT(NULL != pInt_);
 }
 
@@ -58,7 +59,8 @@ void FourByteIntegerTests::tearDown()
 
 void FourByteIntegerTests::testCreateWithNullDataBuffer()
 {
-    CPPUNIT_ASSERT_THROW(SMPP::FourByteInteger(NULL, "test"), std::invalid_argument);
+    const unsigned char* r = NULL;
+    CPPUNIT_ASSERT_THROW(SMPP::FourByteInteger(r, "test"), std::invalid_argument);
 }
 
 void FourByteIntegerTests::testSize()

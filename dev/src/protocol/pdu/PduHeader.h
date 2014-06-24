@@ -2,6 +2,8 @@
 #define PDUHEADER_H
 
 #include "Integer.h"
+#include "CommandId.h"
+#include "CommandStatus.h"
 
 class PduHeader : public PduDataType
 {
@@ -18,28 +20,39 @@ public:
      * \param[in] dataBuf The data buffer
      * \throw std::invalid_argument The data buffer is NULL
      */
-    PduHeader(const unsigned char* dataBuf);
+    PduHeader(const unsigned char*& data);
 
+    /*!
+     * \brief
+     * \return
+     */
     virtual const unsigned char* Data() const;
+
+    /*!
+     * \brief Size
+     * \return
+     */
     virtual size_t Size() const;
-    virtual bool IsValid();
 
-    uint32_t GetCommandLength() const;
-    void SetCommandLength(uint32_t len);
+    /*!
+     * \brief IsValid
+     * \return
+     */
+    virtual bool IsValid() const;
 
-    uint32_t GetCommandId() const;
-    void SetCommandId(uint32_t len);
+    SMPP::FourByteInteger::value_t CommandLength() const;
+    void SetCommandLength(SMPP::FourByteInteger::value_t len);
 
-    const SMPP::FourByteInteger& GetCommandStatus() const;
-    void SetCommandStatus(uint32_t status);
+    SMPP::CommandId CommandId() const;
+    void SetCommandId(SMPP::CommandId id);
 
-    uint32_t GetSequenceNumber() const;
-    void SetSequenceNumber(uint32_t value);
+    SMPP::CommandStatus CommandStatus() const;
+    void SetCommandStatus(SMPP::CommandStatus status);
+
+    SMPP::FourByteInteger::value_t SequenceNumber() const;
+    void SetSequenceNumber(SMPP::FourByteInteger::value_t value);
 
     void GetFormattedContent(std::string& res) const;
-
-private:
-    void init(const unsigned char* data);
 
 private:
     SMPP::FourByteInteger commandLen_;

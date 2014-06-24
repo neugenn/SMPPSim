@@ -33,7 +33,7 @@ namespace SMPP
         bzero(data_, 1);
     }
 
-    OctetString::OctetString(const unsigned char* data, size_t maxSize, const char* name) :
+    OctetString::OctetString(const unsigned char*& data, size_t maxSize, const char* name) :
     PduDataType(name),
     data_(NULL),
     maxSize_(maxSize)
@@ -48,6 +48,8 @@ namespace SMPP
 
         data_ = new unsigned char[maxSize_];
         memcpy(data_, data, maxSize_);
+
+        data += maxSize;
     }
 
     OctetString::~OctetString()
@@ -65,7 +67,7 @@ namespace SMPP
         return maxSize_;
     }
 
-    bool OctetString::IsValid()
+    bool OctetString::IsValid() const
     {
         return true;
     }

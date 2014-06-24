@@ -8,7 +8,7 @@ namespace SMPP
     HexValidation::~HexValidation()
     {}
 
-    bool HexValidation::IsValid(const unsigned char *data, size_t size)
+    bool HexValidation::IsValid(const unsigned char *data, size_t size) const
     {
         bool res = AsciiValidation::IsValid(data, size);
         for (size_t i = 0; i < size; ++i)

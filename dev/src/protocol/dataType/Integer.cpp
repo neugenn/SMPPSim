@@ -29,7 +29,7 @@ namespace SMPP
     }
 
     template <typename T>
-    Integer<T>::Integer(const unsigned char* data, const char* name) : PduDataType(name)
+    Integer<T>::Integer(const unsigned char*& data, const char* name) : PduDataType(name)
     {
         if (NULL == data)
         {
@@ -41,6 +41,8 @@ namespace SMPP
 
         bzero(&data_[0], sizeof(T));
         memcpy(&data_[0], data, sizeof(T));
+
+        data += sizeof(T);
     }
 
     template <typename T>
@@ -65,7 +67,7 @@ namespace SMPP
     }
 
     template <typename T>
-    bool Integer<T>::IsValid()
+    bool Integer<T>::IsValid() const
     {
         return true;
     }

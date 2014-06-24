@@ -12,7 +12,7 @@ namespace SMPP
     }
 
     template <typename T>
-    COctetString<T>::COctetString(const unsigned char* data, size_t len, const char* name) :
+    COctetString<T>::COctetString(const unsigned char*& data, size_t len, const char* name) :
     PduDataType(name),
     validator_(T()),
     data_()
@@ -31,6 +31,8 @@ namespace SMPP
         {
             data_ = std::string(asciidata, len - 1);
         }
+
+        data += (data_.size() + 1);
 
         /*
         if (!validator_.IsValid(this->Data(), this->Size()))
@@ -65,7 +67,7 @@ namespace SMPP
     }
 
     template <typename T>
-    bool COctetString<T>::IsValid()
+    bool COctetString<T>::IsValid() const
     {
         return (validator_.IsValid(this->Data(), this->Size()));
     }

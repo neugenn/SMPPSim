@@ -45,7 +45,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(OneByteIntegerTests);
 
 void OneByteIntegerTests::setUp()
 {
-    pInt_ = new SMPP::OneByteInteger(DataBuffer);
+    const unsigned char* r = &DataBuffer[0];
+    pInt_ = new SMPP::OneByteInteger(r);
     CPPUNIT_ASSERT(NULL != pInt_);
 }
 
@@ -57,7 +58,8 @@ void OneByteIntegerTests::tearDown()
 
 void OneByteIntegerTests::testCreateWithNullDataBuffer()
 {
-    CPPUNIT_ASSERT_THROW(SMPP::OneByteInteger(NULL, "test"), std::invalid_argument);
+    const unsigned char* r = NULL;
+    CPPUNIT_ASSERT_THROW(SMPP::OneByteInteger(r, "test"), std::invalid_argument);
 }
 
 void OneByteIntegerTests::testSize()

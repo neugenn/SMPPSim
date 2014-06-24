@@ -15,7 +15,7 @@ public:
     TestingValidation()
     {}
 
-    virtual bool IsValid(const unsigned char* /*data*/, size_t /*size*/)
+    virtual bool IsValid(const unsigned char* /*data*/, size_t /*size*/) const
     {
         return T;
     }
@@ -34,7 +34,7 @@ class COctetStringTests : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE(COctetStringTests);
     CPPUNIT_TEST(testValidityWithValidationFailure);
     CPPUNIT_TEST(testValidityWithValidationOk);
-    CPPUNIT_TEST(testCreateWithNULLDataBuffer);
+    CPPUNIT_TEST(testCreateWithNullDataBuffer);
     CPPUNIT_TEST(testCreateWithSpecificSize);
     CPPUNIT_TEST(testEmptyStringSize);
     CPPUNIT_TEST(testEmptyStringData);
@@ -47,7 +47,7 @@ class COctetStringTests : public CppUnit::TestFixture
     virtual void tearDown();
     void testValidityWithValidationFailure();
     void testValidityWithValidationOk();
-    void testCreateWithNULLDataBuffer();
+    void testCreateWithNullDataBuffer();
     void testCreateWithSpecificSize();
     void testEmptyStringSize();
     void testEmptyStringData();
@@ -67,7 +67,8 @@ const unsigned char COctetStringTests::AsciiData[5] = { 0x31, 0x32, 0x61, 0x41, 
 
 void COctetStringTests::setUp()
 {
-    pString_ = new TestingCOctetString<true>(&AsciiData[0], 5);
+    const unsigned char* data = &AsciiData[0];
+    pString_ = new TestingCOctetString<true>(data, 5);
     CPPUNIT_ASSERT(NULL != pString_);
 }
 
@@ -88,14 +89,16 @@ void COctetStringTests::testValidityWithValidationOk()
     CPPUNIT_ASSERT_EQUAL(true, s.IsValid());
 }
 
-void COctetStringTests::testCreateWithNULLDataBuffer()
+void COctetStringTests::testCreateWithNullDataBuffer()
 {
-    CPPUNIT_ASSERT_THROW(SMPP::CString(NULL, 1), std::invalid_argument);
+    const unsigned char* data = NULL;
+    CPPUNIT_ASSERT_THROW(SMPP::CString(data, 1), std::invalid_argument);
 }
 
 void COctetStringTests::testCreateWithSpecificSize()
 {
-    SMPP::CString cs(&AsciiData[0], 3);
+    const unsigned char* data = &AsciiData[0];
+    SMPP::CString cs(data, 3);
     std::stringstream s;
     s << cs;
     CPPUNIT_ASSERT_EQUAL(std::string("313200"), s.str());

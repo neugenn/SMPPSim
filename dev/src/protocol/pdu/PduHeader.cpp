@@ -10,76 +10,57 @@ data_()
     bzero(&data_[0], HeaderSize);
 }
 
-PduHeader::PduHeader(const unsigned char* dataBuf) :
+PduHeader::PduHeader(const unsigned char*& data) :
 PduDataType(),
-commandLen_("command_len"),
-commandId_("command_id"),
-commandStatus_("command_status"),
-sequenceNum_("sequence_number"),
+commandLen_(data, "command_len"),
+commandId_(data, "command_id"),
+commandStatus_(data, "command_status"),
+sequenceNum_(data, "sequence_number"),
 data_()
 {
-    try
+    if (NULL == data)
     {
-        this->init(dataBuf);
+        throw std::invalid_argument("");
     }
-    catch (std::exception& e)
-    {
-        throw;
-    }
-
     bzero(&data_[0], HeaderSize);
 }
 
-void PduHeader::init(const unsigned char *data)
-{
-    commandLen_ = SMPP::FourByteInteger(data);
-    data += commandLen_.Size();
-
-    commandId_ = SMPP::FourByteInteger(data);
-    data += commandId_.Size();
-
-    commandStatus_ = SMPP::FourByteInteger(data);
-    data += commandStatus_.Size();
-
-    sequenceNum_ = SMPP::FourByteInteger(data);
-}
-
-uint32_t PduHeader::GetCommandLength() const
+SMPP::FourByteInteger::value_t PduHeader::CommandLength() const
 {
     return commandLen_.Value();
 }
 
-void PduHeader::SetCommandLength(uint32_t len)
+void PduHeader::SetCommandLength(SMPP::FourByteInteger::value_t len)
 {
     commandLen_.SetValue(len);
 }
 
-uint32_t PduHeader::GetCommandId() const
+SMPP::CommandId PduHeader::CommandId() const
 {
-    return commandId_.Value();
+    return SMPP::CommandId(commandId_.Value());
 }
 
-void PduHeader::SetCommandId(uint32_t value)
+void PduHeader::SetCommandId(SMPP::CommandId id)
 {
-    commandId_.SetValue(value);
+    commandId_.SetValue(id);
 }
 
-const SMPP::FourByteInteger& PduHeader::GetCommandStatus() const
+SMPP::CommandStatus PduHeader::CommandStatus() const
 {
-    return commandStatus_;
+    return SMPP::CommandStatus(commandStatus_.Value());
 }
 
-void PduHeader::SetCommandStatus(uint32_t status)
+void PduHeader::SetCommandStatus(SMPP::CommandStatus status)
 {
     commandStatus_.SetValue(status);
 }
 
-uint32_t PduHeader::GetSequenceNumber() const
+SMPP::FourByteInteger::value_t PduHeader::SequenceNumber() const
 {
     return sequenceNum_.Value();
 }
 
-void PduHeader::SetSequenceNumber(uint32_t val)
+void PduHeader::SetSequenceNumber(SMPP::FourByteInteger::value_t val)
 {
     sequenceNum_.SetValue(val);
 }
@@ -91,7 +72,6 @@ void PduHeader::GetFormattedContent(std::string &res) const
     s << "command_id: 0x" << commandId_ << std::endl;
     s << "command_status: 0x" << commandStatus_ << std::endl;
     s << "sequence_number: 0x" << sequenceNum_ << " (" << sequenceNum_.Value() << ")" << std::endl;
-    s << std::endl;
 
     res = s.str();
 }
@@ -118,7 +98,7 @@ size_t PduHeader::Size() const
     return PduHeader::HeaderSize;
 }
 
-bool PduHeader::IsValid()
+bool PduHeader::IsValid() const
 {
     return ( commandLen_.IsValid() && commandId_.IsValid() && commandStatus_.IsValid() && sequenceNum_.IsValid() );
 }

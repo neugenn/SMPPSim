@@ -22,30 +22,30 @@ namespace SMPP
     addressRange_("address_range"),
     data_(NULL)
     {
-        header_.SetCommandId(0x00000002);
+        header_.SetCommandId(SMPP::BIND_TRANSMITTER);
         header_.SetCommandLength(MIN_SIZE);
     }
 
     BindTransmitter::BindTransmitter(const unsigned char* data) :
     Pdu(data),
-    systemId_("system_id"),
-    password_("password"),
-    systemType_("system_type"),
-    interfaceVersion_("interface_version"),
-    addrTon_("addr_ton"),
-    addrNpi_("addr_npi"),
-    addressRange_("address_range"),
+    systemId_(data, SystemIdMaxLen, "system_id"),
+    password_(data, PasswordMaxLen, "password"),
+    systemType_(data, SystemTypeMaxLen, "system_type"),
+    interfaceVersion_(data, "interface_version"),
+    addrTon_(data, "addr_ton"),
+    addrNpi_(data, "addr_npi"),
+    addressRange_(data, AddressRangeMaxLen, "address_range"),
     data_(NULL)
     {
-        const uint32_t commandLen = header_.GetCommandLength();
+        const uint32_t commandLen = header_.CommandLength();
         try
         {
-            this->initBody(data);
-            if (0x00000002 != header_.GetCommandId())
+//            this->initBody(data);
+            if (SMPP::BIND_TRANSMITTER != header_.CommandId())
             {
                 std::stringstream s;
                 s << __PRETTY_FUNCTION__;
-                s << " : invalid command_id(" << std::hex << GetHeader().GetCommandId();
+                s << " : invalid command_id(" << std::hex << header_.CommandId();
                 throw std::invalid_argument(s.str());
             }
         }
@@ -61,7 +61,7 @@ namespace SMPP
             std::stringstream s;
             s << __PRETTY_FUNCTION__ << " : command_length(" << commandLen;
             s << ") smaller than minimum allowed PDU length(" << MIN_SIZE <<") !";
-            throw std::invalid_argument(s.str());
+//            throw std::invalid_argument(s.str());
         }
 
         if (commandLen > MAX_SIZE)
@@ -69,7 +69,7 @@ namespace SMPP
             std::stringstream s;
             s << __PRETTY_FUNCTION__ << " : command_length(" << commandLen;
             s << ") greater than maximum allowed PDU length(" << MAX_SIZE <<") !";
-            throw std::invalid_argument(s.str());
+//            throw std::invalid_argument(s.str());
         }
     }
 
@@ -127,6 +127,7 @@ namespace SMPP
         return *this;
     }
 
+    /*
     void BindTransmitter::initBody(const unsigned char *data)
     {
        size_t offset = GetHeader().Size();
@@ -150,6 +151,7 @@ namespace SMPP
        offset += addrNpi_.Size();
        addressRange_ = CString(data + offset, AddressRangeMaxLen, "address_range");
     }
+    */
 
     void BindTransmitter::GetFormattedContent(std::string &s) const
     {
@@ -188,10 +190,9 @@ namespace SMPP
         }
 
         unsigned char* buf = new unsigned char[size];
-        const PduHeader& h = GetHeader();
 
-        memcpy(buf, h.Data(), h.Size());
-        size_t offset = h.Size();
+        memcpy(buf, header_.Data(), header_.Size());
+        size_t offset = header_.Size();
 
         memcpy(buf + offset, systemId_.Data(), systemId_.Size());
         offset += systemId_.Size();
@@ -220,7 +221,7 @@ namespace SMPP
 
     size_t BindTransmitter::Size() const
     {
-        const size_t size = GetHeader().Size() + systemId_.Size() + password_.Size() + systemType_.Size() \
+        const size_t size = header_.Size() + systemId_.Size() + password_.Size() + systemType_.Size() \
                 + interfaceVersion_.Size() + addrTon_.Size() + addrNpi_.Size() + addressRange_.Size();
 
         return size;

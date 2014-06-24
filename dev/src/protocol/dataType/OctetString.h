@@ -23,7 +23,7 @@ namespace SMPP
          * @param maxSize The size of the data buffer
          * @throw std::invalid_argument The data buffer is NULL
          */
-        OctetString(const unsigned char* data, size_t maxSize, const char* name = "");
+        OctetString(const unsigned char*& data, size_t maxSize, const char* name = "");
 
         OctetString(const OctetString&);
         OctetString& operator=(const OctetString&);
@@ -31,7 +31,7 @@ namespace SMPP
 
         virtual const unsigned char* Data() const;
         virtual size_t Size() const;
-        virtual bool IsValid();
+        virtual bool IsValid() const;
 
     private:
         unsigned char* data_;

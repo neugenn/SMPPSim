@@ -19,7 +19,7 @@ namespace SMPP
          * @param[in] data Input buffer
          * @param[in] size The size of the input buffer
          */
-        virtual bool IsValid(const unsigned char *data, size_t size);
+        virtual bool IsValid(const unsigned char *data, size_t size) const;
     private:
         bool IsHexDigit(int val) const;
     };

@@ -50,8 +50,8 @@ namespace SMPP
         BindTransmitter& operator=(const BindTransmitter& rhs);
 
         /*!
-         * @brief Prepares the formatted content of the BIND_TRANSMITTER_PDU body
-         * @param[out] s The content of the BIND_TRANSMITTER_PDU body
+         * @brief Prepares the formatted content of the BIND_TRANSMITTER_PDU
+         * @param[out] s The content of the BIND_TRANSMITTER_PDU
          */
         virtual void GetFormattedContent(std::string &s) const;
 
@@ -74,7 +74,7 @@ namespace SMPP
         void GetBodyElements(std::vector<PduDataType *> &elements);
 
     private:
-        void initBody(const unsigned char* data);
+//        void initBody(const unsigned char* data);
 
     private:
         CString systemId_;

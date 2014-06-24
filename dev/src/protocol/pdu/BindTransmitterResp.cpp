@@ -10,19 +10,18 @@ namespace SMPP
     systemId_("system_id"),
     data_(NULL)
     {
-        header_.SetCommandId(0x80000002);
+        header_.SetCommandId(SMPP::BIND_TRANSMITTER_RESP);
         header_.SetCommandLength(MIN_SIZE);
     }
 
     BindTransmitterResp::BindTransmitterResp(const unsigned char* data) :
     Pdu(data),
-    systemId_("system_id"),
+    systemId_(data, SystemIdMaxLen, "system_id"),
     data_(NULL)
     {
         try
         {
             header_.SetCommandLength(this->MinSize());
-            systemId_ = CString(data + this->GetHeader().Size(), SystemIdMaxLen, "system_id");
         }
         catch (std::exception& e)
         {
@@ -78,7 +77,7 @@ namespace SMPP
 
     size_t BindTransmitterResp::MaxSize() const
     {
-        return this->GetHeader().Size() + SystemIdMaxLen;
+        return header_.Size() + SystemIdMaxLen;
     }
 
     const unsigned char* BindTransmitterResp::Data() const
@@ -91,8 +90,8 @@ namespace SMPP
         const size_t size = Size();
         unsigned char* buf = new unsigned char[size];
 
-        memcpy(buf, GetHeader().Data(), GetHeader().Size());
-        memcpy(buf + GetHeader().Size(), systemId_.Data(), systemId_.Size());
+        memcpy(buf, header_.Data(), header_.Size());
+        memcpy(buf + header_.Size(), systemId_.Data(), systemId_.Size());
 
         data_ = buf;
         return data_;
@@ -100,7 +99,7 @@ namespace SMPP
 
     size_t BindTransmitterResp::Size() const
     {
-        const size_t size = GetHeader().Size() + systemId_.Size();
+        const size_t size = header_.Size() + systemId_.Size();
         return size;
     }
 

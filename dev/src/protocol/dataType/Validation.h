@@ -15,7 +15,7 @@ namespace SMPP
         virtual ~Validation() {}
 
     public:
-        virtual bool IsValid(const unsigned char* data, size_t size) = 0;
+        virtual bool IsValid(const unsigned char* data, size_t size) const = 0;
     };
 }
 
