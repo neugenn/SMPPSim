@@ -44,7 +44,7 @@ namespace SMPP
         const std::string& GetSystemId() const;
 
     protected:
-        void GetBodyElements(std::vector<PduDataType *> &elements);
+        void GetBodyElements(std::vector<const PduDataType *> &elements) const;
 
     private:
         CString systemId_;

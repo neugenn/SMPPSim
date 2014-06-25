@@ -9,7 +9,6 @@
 class Pdu : public PduDataType
 {
 public:
-
     static SMPP::FourByteInteger::value_t MaxSequenceNumber();
 
     /*!
@@ -63,7 +62,7 @@ protected:
     void UpdateCommandLength();
 
 private:
-    virtual void GetBodyElements(std::vector<PduDataType*>& elements) const;
+    virtual void GetBodyElements(std::vector<const PduDataType*>& elements) const;
     bool IsValidBody() const;
 
 protected:

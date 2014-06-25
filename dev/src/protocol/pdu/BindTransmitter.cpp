@@ -26,51 +26,32 @@ namespace SMPP
         header_.SetCommandLength(MIN_SIZE);
     }
 
-    BindTransmitter::BindTransmitter(const unsigned char* data) :
+    BindTransmitter::BindTransmitter(const unsigned char* data, size_t len) :
     Pdu(data),
-    systemId_(data, SystemIdMaxLen, "system_id"),
-    password_(data, PasswordMaxLen, "password"),
-    systemType_(data, SystemTypeMaxLen, "system_type"),
-    interfaceVersion_(data, "interface_version"),
-    addrTon_(data, "addr_ton"),
-    addrNpi_(data, "addr_npi"),
-    addressRange_(data, AddressRangeMaxLen, "address_range"),
+    systemId_("system_id"),
+    password_("password"),
+    systemType_("system_type"),
+    interfaceVersion_("interface_version"),
+    addrTon_("addr_ton"),
+    addrNpi_("addr_npi"),
+    addressRange_("address_range"),
     data_(NULL)
     {
-        const uint32_t commandLen = header_.CommandLength();
-        try
-        {
-//            this->initBody(data);
-            if (SMPP::BIND_TRANSMITTER != header_.CommandId())
-            {
-                std::stringstream s;
-                s << __PRETTY_FUNCTION__;
-                s << " : invalid command_id(" << std::hex << header_.CommandId();
-                throw std::invalid_argument(s.str());
-            }
-        }
-        catch (std::exception& e)
+        if (len < MIN_SIZE)
         {
             std::stringstream s;
-            s << __PRETTY_FUNCTION__ << std::endl << e.what();
+            s << __PRETTY_FUNCTION__ << " : The size of the data buffer(" << len << ") ";
+            s << "is smaller than the minimum allowed PDU size(" << MIN_SIZE <<") !";
             throw std::invalid_argument(s.str());
         }
 
-        if (commandLen < MIN_SIZE)
-        {
-            std::stringstream s;
-            s << __PRETTY_FUNCTION__ << " : command_length(" << commandLen;
-            s << ") smaller than minimum allowed PDU length(" << MIN_SIZE <<") !";
-//            throw std::invalid_argument(s.str());
-        }
-
-        if (commandLen > MAX_SIZE)
-        {
-            std::stringstream s;
-            s << __PRETTY_FUNCTION__ << " : command_length(" << commandLen;
-            s << ") greater than maximum allowed PDU length(" << MAX_SIZE <<") !";
-//            throw std::invalid_argument(s.str());
-        }
+        systemId_ = CString(data, SystemIdMaxLen, "system_id");
+        password_ = CString(data, PasswordMaxLen, "password");
+        systemType_ = CString(data, SystemTypeMaxLen, "system_type");
+        interfaceVersion_ = OneByteInteger(data, "interface_version");
+        addrTon_ = OneByteInteger(data, "addr_ton");
+        addrNpi_ = OneByteInteger(data, "addr_npi");
+        addressRange_ = CString(data, AddressRangeMaxLen, "address_range");
     }
 
     BindTransmitter::~BindTransmitter()
@@ -123,35 +104,10 @@ namespace SMPP
         addrTon_ = rsh.addrTon_;
         addrNpi_ = rsh.addrNpi_;
         addressRange_ = rsh.addressRange_;
+        data_ = NULL;
 
         return *this;
     }
-
-    /*
-    void BindTransmitter::initBody(const unsigned char *data)
-    {
-       size_t offset = GetHeader().Size();
-       systemId_ = CString(data + offset, SystemIdMaxLen, "system_id");
-
-       offset += systemId_.Size();
-       password_ = CString(data + offset, PasswordMaxLen, "password");
-
-       offset += password_.Size();
-       systemType_ = CString(data + offset, SystemTypeMaxLen, "system_type");
-
-       offset += systemType_.Size();
-       interfaceVersion_ = OneByteInteger(data + offset, "interface_version");
-
-       offset += interfaceVersion_.Size();
-       addrTon_ = OneByteInteger(data + offset, "addr_ton");
-
-       offset += addrTon_.Size();
-       addrNpi_ = OneByteInteger(data + offset, "addr_npi");
-
-       offset += addrNpi_.Size();
-       addressRange_ = CString(data + offset, AddressRangeMaxLen, "address_range");
-    }
-    */
 
     void BindTransmitter::GetFormattedContent(std::string &s) const
     {
@@ -227,7 +183,7 @@ namespace SMPP
         return size;
     }
 
-    void BindTransmitter::GetBodyElements(std::vector<PduDataType *> &elements)
+    void BindTransmitter::GetBodyElements(std::vector<const PduDataType *> &elements) const
     {
         elements.clear();
         elements.push_back(&systemId_);

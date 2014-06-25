@@ -120,7 +120,7 @@ namespace SMPP
         return systemId_.Value();
     }
 
-    void BindTransmitterResp::GetBodyElements(std::vector<PduDataType *> &elements)
+    void BindTransmitterResp::GetBodyElements(std::vector<const PduDataType *> &elements) const
     {
         elements.clear();
         elements.push_back(&systemId_);

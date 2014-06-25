@@ -40,9 +40,10 @@ namespace SMPP
         /*!
          * @brief Creates a BindTransmitter object from a stream of bytes
          * @param[in] data Host byte order data buffer
+         * @param[in] len The length of the data buffer
          * @throw std::invalid_argument The data buffer is NULL
          */
-        BindTransmitter(const unsigned char* data);
+        BindTransmitter(const unsigned char* data, size_t len);
 
         ~BindTransmitter();
 
@@ -71,7 +72,7 @@ namespace SMPP
 
     protected:
         BindTransmitter(const PduHeader& h);
-        void GetBodyElements(std::vector<PduDataType *> &elements);
+        virtual void GetBodyElements(std::vector<const PduDataType *> &elements) const;
 
     private:
 //        void initBody(const unsigned char* data);

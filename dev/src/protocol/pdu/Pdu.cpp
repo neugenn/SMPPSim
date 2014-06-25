@@ -93,18 +93,18 @@ void Pdu::GetFormattedContent(std::string& s) const
     header_.GetFormattedContent(s);
 }
 
-void Pdu::GetBodyElements(std::vector<PduDataType *>& /*elements*/) const
+void Pdu::GetBodyElements(std::vector<const PduDataType *> & /*elements*/) const
 {
 
 }
 
 bool Pdu::IsValidBody() const
 {
-    std::vector<PduDataType*> elements_;
+    std::vector<const PduDataType*> elements_;
     this->GetBodyElements(elements_);
 
-    std::vector<PduDataType*>::const_iterator it = elements_.begin();
-    std::vector<PduDataType*>::const_iterator itEnd = elements_.end();
+    std::vector<const PduDataType*>::const_iterator it = elements_.begin();
+    std::vector<const PduDataType*>::const_iterator itEnd = elements_.end();
     bool res = true;
     for (; it != itEnd; ++it)
     {
@@ -114,6 +114,8 @@ bool Pdu::IsValidBody() const
             break;
         }
     }
+
+    return res;
 }
 
 std::ostream& operator<<(std::ostream& s, const Pdu& pdu)

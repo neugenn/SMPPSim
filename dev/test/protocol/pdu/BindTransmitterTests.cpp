@@ -95,13 +95,13 @@ CPPUNIT_TEST_SUITE_REGISTRATION(BindTransmitterTests);
 
 void BindTransmitterTests::setUp()
 {
-    pPdu_ = new SMPP::BindTransmitter(&ValidBindTransmitterData[0]);
+    pPdu_ = new SMPP::BindTransmitter(&ValidBindTransmitterData[0], sizeof(ValidBindTransmitterData));
     CPPUNIT_ASSERT(NULL != pPdu_);
 }
 
 void BindTransmitterTests::tearDown()
 {
-//    delete pPdu_;
+    delete pPdu_;
 }
 
 void BindTransmitterTests::testSystemIdLen()
@@ -147,7 +147,7 @@ void BindTransmitterTests::testCreateEmpty()
 
 void BindTransmitterTests::testCreateWithNullData()
 {
-    CPPUNIT_ASSERT_THROW(new SMPP::BindTransmitter(NULL), std::invalid_argument);
+    CPPUNIT_ASSERT_THROW(new SMPP::BindTransmitter(NULL, 1), std::invalid_argument);
 }
 
 void BindTransmitterTests::testCommandId()
@@ -158,7 +158,7 @@ void BindTransmitterTests::testCommandId()
 
 void BindTransmitterTests::testCommandIdFromValidData()
 {
-    SMPP::BindTransmitter t(&ValidBindTransmitterData[0]);
+    SMPP::BindTransmitter t(&ValidBindTransmitterData[0], sizeof(ValidBindTransmitterData));
     CPPUNIT_ASSERT_EQUAL(SMPP::BIND_TRANSMITTER, t.CommandId());
 }
 
@@ -179,7 +179,7 @@ void BindTransmitterTests::testCreateWithInvalidCommandId()
         0x01, 0x00 // address_range
         };
 
-    CPPUNIT_ASSERT_THROW(new SMPP::BindTransmitter(&InvalidCommandIdData[0]), std::invalid_argument);
+    CPPUNIT_ASSERT_THROW(new SMPP::BindTransmitter(&InvalidCommandIdData[0], sizeof(InvalidCommandIdData)), std::invalid_argument);
 }
 
 void BindTransmitterTests::testCreateWithShortCommandLen()
@@ -199,7 +199,7 @@ void BindTransmitterTests::testCreateWithShortCommandLen()
         0x01, 0x00 // address_range
         };
 
-    CPPUNIT_ASSERT_THROW(new SMPP::BindTransmitter(&InvalidShortCommandLenData[0]), std::invalid_argument);
+    CPPUNIT_ASSERT_THROW(new SMPP::BindTransmitter(&InvalidShortCommandLenData[0], sizeof(InvalidShortCommandLenData)), std::invalid_argument);
 }
 
 void BindTransmitterTests::testCreateWithLongCommandLen()
@@ -219,7 +219,7 @@ void BindTransmitterTests::testCreateWithLongCommandLen()
         0x01, 0x00 // address_range
         };
 
-    CPPUNIT_ASSERT_THROW(new SMPP::BindTransmitter(&InvalidLongCommandLenData[0]), std::invalid_argument);
+    CPPUNIT_ASSERT_THROW(new SMPP::BindTransmitter(&InvalidLongCommandLenData[0], sizeof(InvalidLongCommandLenData)), std::invalid_argument);
 }
 
 void BindTransmitterTests::testCopyConstructionNoCrash()
